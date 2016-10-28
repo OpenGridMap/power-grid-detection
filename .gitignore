@@ -7,3 +7,5 @@ data/cache/*.jpg
 data/osm/raw-data
 
 *.jpg
+*.png
+*.db
