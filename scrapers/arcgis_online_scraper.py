@@ -1,9 +1,17 @@
 from __future__ import print_function
 
 import os
+import itertools
+import multiprocessing
 import requests
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from utils.geo.coordinate import Coordinate
+from utils.progress_bar import PBar
+from utils.download_helpers import DownloadWorker, DownloadTask
+from utils.tiles.tile_extractor import extract_image_from_tiles
 
 
 class ArcgisOnlineScraper(object):
@@ -26,40 +34,36 @@ class ArcgisOnlineScraper(object):
         if not os.path.exists(self.files_dir):
             os.makedirs(self.files_dir)
 
-    def scrape_image_binary(self, coord, zoom_level=None):
-        if zoom_level is None:
-            zoom_level = [18]
-
-        tiles = coord.get_bbox_tiles(zoom_level)
-
+    def scrape_image_binary(self, coord, zoom=18):
+        tiles = coord.get_tiles(zoom)
         files = []
+        ts = []
 
         for tile in tiles:
-            print()
             print(tile)
-
-            url = ArcgisOnlineScraper.BASE_URL.format(tile.z, tile.y, tile.x)
-
-            filename = "%d_%d_%d.jpg" % (tile.y, tile.x, tile.z)
-            files += filename
-
+            # url = ArcgisOnlineScraper.BASE_URL.format(tile.z, tile.y, tile.x)
+            url = ArcgisOnlineScraper.BASE_URL.format(tile[2], tile[1], tile[0])
+            # filename = "{}_{}_{}.jpg".format(tile.x, tile.y, tile.z)
+            filename = "{}_{}_{}.jpg".format(*tile)
             file_path = os.path.join(self.files_dir, filename)
 
-            if os.path.isfile(file_path):
-                print('Already Exists')
-                continue
+            files.append(os.path.abspath(file_path))
 
-            req = requests.get(url=url, stream=True)
+            tile_download_task = DownloadTask(url, file_path)
+            tile_download_task()
 
-            if req.status_code is 200:
-                with open(file_path, 'wb') as f:
-                    for chunk in req.iter_content(1024):
-                        f.write(chunk)
-                print('Success')
-            else:
-                print(req.status_code)
+            ts.append(tile)
+
+        extract_image_from_tiles(coord, self.files_dir)
+
 
 
 if __name__ == '__main__':
     d = ArcgisOnlineScraper()
     d.scrape_image_binary(coord=Coordinate(48.27563, 11.676431))
+    d.scrape_image_binary(coord=Coordinate(48.277207, 11.666549))
+    # d.scrape_image_binary(coord=Coordinate(48.131293, 11.562091))
+    # d.scrape_image_binary(coord=Coordinate(48.131293, 15.582091))
+    # d.scrape_image_binary(coord=Coordinate(48.131293, 15.582091))
+    # d.scrape_image_binary(coord=Coordinate(47.131293, 11.582091))
+#

@@ -5,3 +5,5 @@ __pycache__/
 .idea/*
 data/cache/*.jpg
 data/osm/raw-data
+
+*.jpg

@@ -1,0 +1,7 @@
+digital-globe:
+  api-key: Digital Globe Maps Api api-key
+
+mapbox:
+  api-key: Mapbox api-key
+
+loc: europe
