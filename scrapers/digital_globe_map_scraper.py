@@ -1,9 +1,14 @@
-from os import path, makedirs
-
+import requests
 from requests import get
+from requests.adapters import HTTPAdapter
 
 from config import config
+import os
 
+from utils.geo.coordinate import Coordinate
+from utils.requests.requests_handler import RequestsHandler
+
+import socket
 
 class DigitalGlobeMapScraper(object):
     BASE_URL = "https://api.mapbox.com"
@@ -28,48 +33,68 @@ class DigitalGlobeMapScraper(object):
         'recent_with_streets': 'digitalglobe.nal0mpda'
     }
 
-    def __init__(self, files_dir='data/raw'):
-        self.files_dir = files_dir
+    def __init__(self, files_dir=None):
+        self.map_id = 'recent'
+        self.map_format = '1x'
+        self.resolution = (256, 256)
         self.api_key = config['digital-globe']['api-key']
 
-        if not path.exists(files_dir):
-            makedirs(files_dir)
+        if files_dir is None:
+            self.files_dir = os.path.join(
+                os.path.dirname(__file__),
+                os.path.pardir,
+                'data',
+                'cache',
+                'digital-globe',
+                self.map_format,
+                str(self.resolution[0]),
+            )
+        else:
+            self.files_dir = files_dir
 
-    def scrape_image_binary(self, coord, filename=None, zoom_level=18, resolution=(1280, 1280), map_id='recent',
-                            map_format='2x'):
-        if not path.exists(path.join(self.files_dir, map_format)):
-            makedirs(path.join(self.files_dir, map_format))
+        if not os.path.exists(self.files_dir):
+            os.makedirs(self.files_dir)
 
+        self.requests_handler = RequestsHandler()
+
+        # socket.create_connection((DigitalGlobeMapScraper.BASE_URL, 80), timeout=2)
+        #
+        # s = requests.Session()
+        # s.mount(DigitalGlobeMapScraper.BASE_URL, HTTPAdapter(max_retries=2))
+
+    def scrape_image_binary(self, coord, filename=None, zoom_level=18):
         if filename is None:
             filename = "%f_%f.jpg" % (coord.latitude, coord.longitude)
 
-        url = DigitalGlobeMapScraper.STATIC_IMAGE_URL % (
-            DigitalGlobeMapScraper.MAP_IDS[map_id],
-            coord.longitude,
-            coord.latitude,
-            zoom_level,
-            resolution[0],
-            resolution[1],
-            DigitalGlobeMapScraper.FORMAT[map_format],
-            self.api_key
-        )
+        file_path = os.path.join(self.files_dir, filename)
 
-        file_path = path.join(self.files_dir, map_format, filename)
-
-        if path.isfile(file_path):
+        if os.path.isfile(file_path):
             # print ('Already Exists')
             return
 
-        req = get(url=url, stream=True)
+        url = DigitalGlobeMapScraper.STATIC_IMAGE_URL % (
+            DigitalGlobeMapScraper.MAP_IDS[self.map_id],
+            coord.longitude,
+            coord.latitude,
+            zoom_level,
+            self.resolution[0],
+            self.resolution[1],
+            DigitalGlobeMapScraper.FORMAT[self.map_format],
+            self.api_key
+        )
 
-        if req.status_code is 200:
-            with open(file_path, 'wb') as f:
-                for chunk in req.iter_content(1024):
-                    f.write(chunk)
+        self.requests_handler.get_file(url, file_path)
+
+        # req = get(url=url, stream=True)
+        #
+        # if req.status_code is 200:
+        #     with open(file_path, 'wb') as f:
+        #         for chunk in req.iter_content(1024):
+        #             f.write(chunk)
+        # else:
+        #     print(req.status_code, req.content)
 
 
-# if __name__ == '__main__':
-#     d = DigitalGlobeMapApiScraper()
-#     d.scrape_image_binary(
-#         coord=GeoCoordinate(48.275625, 11.676476)
-#     )
+if __name__ == '__main__':
+    d = DigitalGlobeMapScraper(files_dir='/home/tanuj/tmp')
+    d.scrape_image_binary(coord=Coordinate(48.275625, 11.676476))

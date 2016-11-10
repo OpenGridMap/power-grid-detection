@@ -9,7 +9,8 @@ db_file_path = os.path.join(
     os.pardir,
     'data',
     'osm',
-    config['loc'] + '-datastore.db'
+    # config['loc'] + '-datastore.db'
+    'datastore.db'
 )
 
 db_dir = os.path.dirname(db_file_path)
