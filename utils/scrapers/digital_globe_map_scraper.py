@@ -2,7 +2,7 @@ import requests
 from requests import get
 from requests.adapters import HTTPAdapter
 
-from config import config
+import config
 import os
 
 from utils.geo.coordinate import Coordinate
@@ -37,11 +37,12 @@ class DigitalGlobeMapScraper(object):
         self.map_id = 'recent'
         self.map_format = '1x'
         self.resolution = (256, 256)
-        self.api_key = config['digital-globe']['api-key']
+        self.api_key = config.config_params['digital-globe']['api-key']
 
         if files_dir is None:
             self.files_dir = os.path.join(
                 os.path.dirname(__file__),
+                os.path.pardir,
                 os.path.pardir,
                 'data',
                 'cache',

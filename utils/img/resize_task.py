@@ -5,14 +5,15 @@ from PIL import Image
 
 import config
 
+
 class ResizeTask:
-    def __init__(self, src_file, dataset_dir, sample_type, resolutions):
+    def __init__(self, src_file, dataset_dir, sample_type, resolutions, **kwargs):
         self.src_file = src_file
         self.dataset_dir = dataset_dir
         self.sample_type = sample_type
         self.resolutions = resolutions
 
-    def __call__(self):
+    def __call__(self, **kwargs):
         if os.path.exists(self.src_file):
             im = Image.open(self.src_file)
 

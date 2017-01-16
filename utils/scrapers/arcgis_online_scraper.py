@@ -1,19 +1,12 @@
 from __future__ import print_function
 
 import os
-import itertools
-import multiprocessing
 import shutil
-
-import requests
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 
 from utils.geo.coordinate import Coordinate
-from utils.progress_bar import PBar
-from utils.download_task import DownloadTask
-from utils.tiles.tile_extractor import extract_image_from_tiles
 from utils.requests.requests_handler import RequestsHandler
 
 
@@ -31,8 +24,8 @@ class ArcgisOnlineScraper(object):
                 'arcgis-online'
             )
 
-            self.files_dir = os.path.join(files_base_dir, 'positive', str(ArcgisOnlineScraper.TILE_RESOLUTION))
-            self.negative_files_dir = os.path.join(files_base_dir, 'negative', str(ArcgisOnlineScraper.TILE_RESOLUTION))
+            self.files_dir = os.path.join(files_base_dir, 'positive', str(self.TILE_RESOLUTION))
+            self.negative_files_dir = os.path.join(files_base_dir, 'negative', str(self.TILE_RESOLUTION))
 
         else:
             self.files_dir = files_dir
@@ -89,7 +82,7 @@ class ArcgisOnlineScraper(object):
         # ts = []
 
         # for tile in tiles:
-        #     url = ArcgisOnlineScraper.BASE_URL.format(tile[2], tile[1], tile[0])
+        #     url = self.BASE_URL.format(tile[2], tile[1], tile[0])
         #
         #     filename = "{}_{}_{}.jpg".format(*tile)
         #     file_path = os.path.join(self.files_dir, filename)
@@ -101,8 +94,9 @@ class ArcgisOnlineScraper(object):
         #
         #     ts.append(tile)
 
-    def get_url(self, tile):
-        url = self.BASE_URL.format(tile[2], tile[1], tile[0])
+    @staticmethod
+    def get_url(tile):
+        url = ArcgisOnlineScraper.BASE_URL.format(tile[2], tile[1], tile[0])
         return url
 
 

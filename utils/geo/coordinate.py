@@ -1,3 +1,4 @@
+import math
 import mercantile
 
 
@@ -18,6 +19,22 @@ class Coordinate(object):
     def latlng(self):
         return self.lat, self.lng
 
+    def get_tile_coordinates(self, zoom):
+        lat_rad = math.radians(self.lat)
+        n = 2.0 ** zoom
+        x = (self.lng + 180.0) / 360.0 * n
+        y = (1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n
+
+        xpixel, xtile = math.modf(x)
+        ypixel, ytile = math.modf(y)
+
+        xtile = int(xtile)
+        ytile = int(ytile)
+        xpixel = int(xpixel * 256)
+        ypixel = int(ypixel * 256)
+
+        return xtile, ytile, xpixel, ypixel
+
     def get_tile(self, zoom=18):
         return mercantile.tile(lat=self.lat, lng=self.lng, zoom=zoom)
 
@@ -36,22 +53,9 @@ class Coordinate(object):
         y_s = tile.y - 1
         y_n = tile.y + 1
 
-        # tiles = []
-
-        # for i in range(3):
-        #     for j in range(3):
-        #         tile = mercantile.tile(*mercantile.ul(i + x_w, j + y_s, zoom), zoom=zoom)
-                # tile = i + x_w, j + y_s, zoom
-                # tiles.append(tile)
-
         for i in range(x_w, x_e + 1, 1):
             for j in range(y_s, y_n + 1, 1):
                 yield i, j, zoom
-        #         tile = mercantile.tile(*mercantile.ul(i, j, zoom), zoom=zoom)
-        #         tiles.append(tile)
-
-        # return tiles
-        # return mercantile.tiles(*self.get_bbox(zoom), zooms=[zoom])
 
     def get_negative_tiles(self, zoom=18):
         tile = self.get_tile(zoom)
@@ -94,3 +98,14 @@ class Coordinate(object):
         # print(ne.y - sw.y)
         #
         # return (abs(ne.x - sw.x) + 1) * (abs(ne.y - sw.y) + 1)
+    
+    def get_crop_box(self, zoom, tile_res=256, crop_size=256, x_crop_offset=0, y_crop_offset=20):
+        tile_coord = self.get_tile_coordinates(zoom)
+        xpix, ypix = tile_coord[2], tile_coord[3]
+
+        return (
+            tile_res + xpix - crop_size / 2. - x_crop_offset,
+            tile_res + ypix - crop_size / 2. - y_crop_offset,
+            tile_res + xpix + crop_size / 2. - x_crop_offset,
+            tile_res + ypix + crop_size / 2. - y_crop_offset
+        )

@@ -1,5 +1,5 @@
 from peewee import SqliteDatabase
-from config import config
+from config import config_params
 import os
 
 db_file_path = os.path.join(

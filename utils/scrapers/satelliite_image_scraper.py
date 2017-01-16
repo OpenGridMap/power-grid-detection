@@ -1,16 +1,15 @@
 from __future__ import print_function
 
-from time import time, sleep
 from Queue import Queue
 from threading import Thread
+from time import time
 
-from progressbar import AdaptiveETA, Bar, Percentage, ProgressBar, SimpleProgress, Timer
+from progressbar import Bar, Percentage, ProgressBar, SimpleProgress, Timer
 
-from osm.db.models import DataPoint
-from osm.db.models import PowerTag
-from scrapers.digital_globe_map_scraper import DigitalGlobeMapScraper
-from scrapers.arcgis_online_scraper import ArcgisOnlineScraper
 from utils.geo.coordinate import Coordinate
+from utils.osm.db.models import DataPoint
+from utils.osm.db.models import PowerTag
+from utils.scrapers.digital_globe_map_scraper import DigitalGlobeMapScraper
 
 j = 0
 

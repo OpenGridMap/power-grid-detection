@@ -1,24 +1,27 @@
 import multiprocessing
 
+from utils.requests.requests_handler import RequestsHandler
+
 
 class Worker(multiprocessing.Process):
-    def __init__(self, task_queue, pbar=None):
+    def __init__(self, task_queue, result_queue, **kwargs):
         super(Worker, self).__init__()
         self.task_queue = task_queue
-        self.pbar = pbar
+        self.result_queue = result_queue
+        self.task_kwargs = {}
+
+        if 'requests_handler' in kwargs and kwargs['requests_handler']:
+            self.task_kwargs['requests_handler'] = RequestsHandler()
 
     def run(self):
-        while True:
-            next_task = self.task_queue.get()
+        try:
+            for task in iter(self.task_queue.get, None):
+                result = task(**self.task_kwargs)
 
-            if next_task is None:
-                self.task_queue.task_done()
-                break
-
-            next_task()
-            self.task_queue.task_done()
-
-            if self.pbar is not None:
-                self.pbar.update()
-
-        return
+                self.result_queue.put(result)
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            raise e
+        finally:
+            return

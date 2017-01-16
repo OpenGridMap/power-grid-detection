@@ -7,13 +7,91 @@ sys.path.append(os.path.dirname(__file__))
 config_file_path = os.path.join(os.path.dirname(__file__), './config.yaml')
 
 with open(config_file_path, 'r') as f:
-    config = yaml.load(f)
+    config_params = yaml.load(f)
 
 project_dir = os.path.join(os.path.dirname(__file__))
+data_src_dir = os.path.join(project_dir, 'data')
 
-positive_samples_src_dir = os.path.join(project_dir, 'data', 'cache', 'digital-globe', '1x', '256')
-negative_samples_src_dir = os.path.join(project_dir, 'data', 'cache', 'arcgis-online', 'negative', '256')
+positive_samples_src_dir = os.path.join(data_src_dir, 'cache', 'digital-globe', '1x', '256')
+negative_samples_src_dir = os.path.join(data_src_dir, 'cache', 'arcgis-online', 'negative', '256')
 
 dataset_dir = os.path.join(project_dir, 'dataset')
-# positive_samples_dir = os.path.join(dataset_dir, 'positive')
-# negative_samples_dir = os.path.join(dataset_dir, 'negative')
+
+transnet_powerlines_file = os.path.join(project_dir, config_params['transnet-powerlines-csv'])
+transnet_powerlines_filtered_file = os.path.join(data_src_dir, 'transnet', 'transnet_powerlines_' + config_params['loc'] + '.csv')
+transnet_nodes_file = os.path.join(data_src_dir, 'transnet', 'transnet_nodes.pkl')
+nodes = os.path.join(dataset_dir, 'transnet_nodes_' + config_params['loc'] + '.csv')
+
+tiles_cache_dir = os.path.join(os.path.dirname(__file__), 'data', 'cache', 'arcgis-online', 'tiles')
+affixed_tiles_dir = os.path.join(dataset_dir, 'raw', 'tiles')
+cropped_images_dir = os.path.join(dataset_dir, 'raw', 'cropped')
+positive_samples_dir = os.path.join(dataset_dir, 'raw', 'positive')
+negative_samples_dir = os.path.join(dataset_dir, 'raw', 'negative')
+
+
+final_dataset_dir = os.path.join(dataset_dir, 'processed')
+
+dataset_file = os.path.join(dataset_dir, 'data.pkl')
+annotations_file = os.path.join(dataset_dir, 'annotations.json')
+current_annotations_file = os.path.join(dataset_dir, 'annotations-v1.json')
+
+germany = [
+    'bayern',
+    'nordrhein-westfalen',
+    'niedersachsen',
+    'bremen',
+    'sachsen-anhalt',
+    'hessen',
+    'sachsen',
+    'hamburg',
+    'saarland',
+    'berlin',
+    'baden-wuerttemberg',
+    'thueringen',
+    'rheinland-pfalz',
+    'schleswig-holstein',
+    'mecklenburg-vorpommern',
+    'brandenburg'
+]
+
+europe = [
+     'netherlands',
+     'italy',
+     'france',
+     'poland',
+     'switzerland',
+     'latvia',
+     'great-britain',
+     'belarus',
+     'spain',
+     'finland',
+     'bulgaria',
+     'ireland-and-northern-ireland',
+     'portugal',
+     'ukraine',
+     'czech-republic',
+     'belgium',
+     'volga-fed-district',
+     'serbia',
+     'moldova',
+     'hungary',
+     'lithuania',
+     'norway',
+     'denmark',
+     'sweden',
+     'estonia',
+     'slovakia',
+     'bosnia-herzegovina',
+     'greece',
+     'austria',
+     'iceland',
+     'croatia',
+     'luxembourg',
+     'slovenia',
+     'romania'
+ ] + germany
+
+regions = {
+    'germany': germany,
+    'europe': europe
+}

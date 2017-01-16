@@ -5,3 +5,5 @@ mapbox:
   api-key: Mapbox api-key
 
 loc: europe
+
+transnet-powerlines-csv: data/transnet/transnet_powerlines.csv

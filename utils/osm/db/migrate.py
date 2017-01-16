@@ -1,6 +1,6 @@
 import os
 
-from osm.db.models import db, PowerTag, DataPoint, db_file_path
+from utils.osm.db.models import db, PowerTag, DataPoint, db_file_path
 
 
 def create_tables():
