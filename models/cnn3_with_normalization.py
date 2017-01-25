@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import numpy as np
@@ -7,6 +8,7 @@ from keras.models import Model
 from keras.optimizers import SGD
 from keras.callbacks import CSVLogger, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator
+from tqdm import tqdm
 
 import theano
 
@@ -26,11 +28,11 @@ def cnn_w_normalization(input_shape=(48, 48, 3)):
     x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
 
-    x = Convolution2D(256, 3, 3, activation='relu')(x)
+    x = Convolution2D(192, 3, 3, activation='relu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
 
-    x = Convolution2D(256, 3, 3, activation='relu')(x)
+    x = Convolution2D(192, 3, 3, activation='relu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     x = BatchNormalization()(x)
 
@@ -46,7 +48,7 @@ def cnn_w_normalization(input_shape=(48, 48, 3)):
     return model
 
 
-def train(data=None, lr=0.001, batch_size=256, n_epochs=20, input_shape=(48, 48, 3)):
+def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48, 3)):
     print('loading model...')
     model = cnn_w_normalization(input_shape=input_shape)
     model.summary()
@@ -54,7 +56,7 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=20, input_shape=(48, 48,
     optimizer = SGD(lr=lr)
 
     print('compiling model...')
-    model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
     print('done.')
 
     # (X_train, y_train), (X_validation, y_validation), (X_test, y_test) = data
@@ -68,20 +70,27 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=20, input_shape=(48, 48,
 
     data_iter = DataIter(batch_size=batch_size)
 
-    for epoch in range(n_epochs):
-        print(epoch)
-        for x, y, n in data_iter:
-            print('Batch no : ', n)
-            model.train_on_batch(x, y)
+    history = model.fit_generator(data_iter, nb_epoch=50, samples_per_epoch=data_iter.n_batches * batch_size, callbacks=[csv_logger, best_model_checkpointer], verbose=1)
 
+    # res = []
+    #
+    # for epoch in range(n_epochs):
+    #     print(epoch)
+    #     for x, y, n in tqdm(data_iter):
+    #         print('Batch no : ', n)
+            # res.append(model.train_on_batch(x, y))
+            # best_model_checkpointer.on_batch_end(n)
+    #
     # score = model.evaluate(X_test, y_test, verbose=True)
 
     # print('Test score:', score[0])
     # print('Test accuracy:', score[1])
 
-    # return history
+    return history
+
+    # return model, res
 
 
 if __name__ == '__main__':
     # train(load_dataset(), n_epochs=500, batch_size=84, input_shape=(180, 180, 3))
-    train(None, n_epochs=500, batch_size=32, input_shape=(180, 180, 3))
+    train(None, n_epochs=500, batch_size=16, input_shape=(180, 180, 3))

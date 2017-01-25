@@ -14,18 +14,34 @@ class DataIter:
         self.batch_size = batch_size
 
         self.ic = ImageCollection(self.dataset['filepath'].values.tolist())
-        self.n_batches = 1. * len(self.ic) / batch_size
+        # self.n_batches = 1. * len(self.ic) / batch_size
+        self.n_batches = int(len(self.ic) / batch_size)
 
         if self.n_batches % 1 is not 0:
             self.n_batches = int(self.n_batches) + 1
 
+        self.batch_no = 0
+
     def __iter__(self):
         for batch_no in range(self.n_batches):
             x, y = self.ic[batch_no * self.batch_size: (batch_no + 1) * self.batch_size].concatenate()
-            yield x, y, batch_no
+            yield x, y
+
+    def next(self):
+        x, y = self.ic[self.batch_no * self.batch_size: (self.batch_no + 1) * self.batch_size].concatenate()
+
+        if self.batch_no < self.n_batches:
+            self.batch_no += 1
+        else:
+            self.reset()
+
+        return x, y
 
     def __len__(self):
         return self.n_batches
+
+    def reset(self):
+        self.batch_no = 0
 
 #
 # if __name__ == '__main__':

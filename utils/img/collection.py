@@ -24,7 +24,7 @@ class ImageCollection(io.ImageCollection):
     @staticmethod
     def is_tower(path):
         if 'positive' in path:
-            return 1
+            return [1, 0]
         # elif 'negative' in path:
         else:
-            return 0
+            return [0, 1]
