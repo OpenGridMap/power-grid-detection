@@ -23,17 +23,23 @@ transnet_nodes_file = os.path.join(data_src_dir, 'transnet', 'transnet_nodes.pkl
 nodes = os.path.join(dataset_dir, 'transnet_nodes_' + config_params['loc'] + '.csv')
 
 tiles_cache_dir = os.path.join(os.path.dirname(__file__), 'data', 'cache', 'arcgis-online', 'tiles')
-affixed_tiles_dir = os.path.join(dataset_dir, 'raw', 'tiles')
-cropped_images_dir = os.path.join(dataset_dir, 'raw', 'cropped')
+affixed_tiles_dir = os.path.join(data_src_dir, 'raw', 'tiles')
+cropped_images_dir = os.path.join(data_src_dir, 'raw', 'cropped')
 positive_samples_dir = os.path.join(dataset_dir, 'raw', 'positive')
 negative_samples_dir = os.path.join(dataset_dir, 'raw', 'negative')
+
+gen_dataset_dir = os.path.join(dataset_dir, 'raw')
 
 
 final_dataset_dir = os.path.join(dataset_dir, 'processed')
 
-dataset_file = os.path.join(dataset_dir, 'data.pkl')
+
 annotations_file = os.path.join(dataset_dir, 'annotations.json')
-current_annotations_file = os.path.join(dataset_dir, 'annotations-v1.json')
+current_annotations_file = os.path.join(dataset_dir, 'annotations-v2.json')
+
+train_data_file = os.path.join(dataset_dir, 'train_data.csv')
+validation_data_file = os.path.join(dataset_dir, 'validation_data.csv')
+test_data_file = os.path.join(dataset_dir, 'test_data.csv')
 
 germany = [
     'bayern',

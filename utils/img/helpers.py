@@ -14,7 +14,9 @@ from utils.dataset.annotations import annotations_iter, get_rect_from_annotation
 def crop_rect(im_src, x, y, width, height, dest_path=None):
     box = get_coord_from_rect_box(x, y, height, width)
 
-    im = Image.new('RGB', (width, height))
+    # print(im_src.mode)
+
+    im = Image.new(im_src.mode, (width, height))
     cropped_region = im_src.crop(box)
     im.paste(cropped_region, (0, 0))
 
@@ -38,7 +40,8 @@ def get_polygon_from_rect_box(x, y, height, width):
 
 
 def crop_positive_samples(im_src, annotation, basename, window_res=(48, 48), step_size=12):
-    positive_samples_dir = os.path.join(config.positive_samples_dir, str(window_res[0]))
+    positive_samples_dir = os.path.join(config.positive_samples_dir)
+    # positive_samples_dir = os.path.join(config.positive_samples_dir, str(window_res[0]))
     x, y, width, height = get_rect_from_annotation(annotation)
 
     if not os.path.exists(positive_samples_dir):
@@ -90,7 +93,8 @@ def crop_positive_samples(im_src, annotation, basename, window_res=(48, 48), ste
 
 
 def crop_negative_samples(im_src, annotations, basename, samples_per_image, window_res=(48, 48)):
-    negative_samples_dir = os.path.join(config.negative_samples_dir, str(window_res[0]))
+    negative_samples_dir = os.path.join(config.negative_samples_dir)
+    # negative_samples_dir = os.path.join(config.negative_samples_dir, str(window_res[0]))
     boxes = [get_rect_from_annotation(annotation) for annotation in annotations_iter(annotations)]
     annotated_regions = MultiPolygon([get_polygon_from_rect_box(*box) for box in boxes])
     n_samples = 0

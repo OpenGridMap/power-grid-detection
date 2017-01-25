@@ -30,38 +30,42 @@ class ArcgisScraper(object):
         if not os.path.exists(self.files_dir):
             os.makedirs(self.files_dir)
 
-    def scrape(self, n, filename=None, zoom=18, ipython_notebook=False):
-        tile_download_tasks = self.get_tile_downloads_tasks(n, zoom, filename)
-        TasksHandler.map(tile_download_tasks, n_tasks=n, n_workers=128, requests_handler=True,
-                         ipython_notebook=ipython_notebook)
-        print('Downloaded all tasks\n')
+    def scrape(self, n=None, filename=None, zoom=18, ipython_notebook=False):
+        nodes, n = self.get_nodes_df(filename, n)
 
-        tiles_affix_tasks = self.get_tiles_affix_tasks(n, zoom, filename)
+        # tile_download_tasks = self.get_tile_downloads_tasks(nodes, zoom, filename)
+        # TasksHandler.map(tile_download_tasks, n_tasks=n, n_workers=128, requests_handler=True,
+        #                  ipython_notebook=ipython_notebook)
+        # print('Downloaded all tasks\n')
+
+        tiles_affix_tasks = self.get_tiles_affix_tasks(nodes, zoom, filename)
         TasksHandler.map(tiles_affix_tasks, n_tasks=n, ipython_notebook=ipython_notebook)
         print('Finished affixing tiles')
 
-    def get_tile_downloads_tasks(self, n, zoom, filename=None):
-        nodes = self.get_nodes_df(filename, n)
-
+    def get_tile_downloads_tasks(self, nodes, zoom, filename=None):
         for node in nodes.iterrows():
             coord = Coordinate(lat=node[1]['lat'], lon=node[1]['lon'])
 
             yield TileDownloadTask(coord, zoom, self.files_dir)
 
-    def get_tiles_affix_tasks(self, n, zoom, filename):
-        nodes = self.get_nodes_df(filename, n)
-
+    def get_tiles_affix_tasks(self, nodes, zoom, filename):
+        # print(nodes)
         for node in nodes.iterrows():
             coord = Coordinate(lat=node[1]['lat'], lon=node[1]['lon'])
 
-            yield TilesAffixTask(node[1]['node'], coord, zoom)
+            osm_id = int(node[1]['osm_id'])
+            # t = TilesAffixTask(osm_id, coord, zoom)
+            # t()
+            # return
+
+            yield TilesAffixTask(osm_id, coord, zoom)
 
     @staticmethod
     def get_nodes_df(filename, n):
         if filename is None:
             filename = config.nodes
         nodes = pd.read_csv(filename, index_col=0, nrows=n)
-        return nodes
+        return nodes, nodes.shape[0]
 
     @staticmethod
     def get_url(tile):

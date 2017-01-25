@@ -1,0 +1,57 @@
+[
+    {
+        "annotations": [
+            {
+                "class": "tower",
+                "height": 129.0,
+                "type": "rect",
+                "width": 30.0,
+                "x": 349.0,
+                "y": 294.0
+            },
+            {
+                "class": "base-center",
+                "type": "point",
+                "x": 365.0,
+                "y": 411.0
+            }
+        ],
+        "class": "image",
+        "filename": "dataset/raw/tiles/33510467.0.jpg"
+    },
+    {
+        "annotations": [
+            {
+                "class": "tower",
+                "height": 155.0,
+                "type": "rect",
+                "width": 37.0,
+                "x": 244.0,
+                "y": 163.0
+            },
+            {
+                "class": "base-center",
+                "type": "point",
+                "x": 263.0,
+                "y": 295.0
+            }
+        ],
+        "class": "image",
+        "filename": "dataset/raw/tiles/33510469.0.jpg"
+    },
+    {
+        "annotations": [],
+        "class": "image",
+        "filename": "dataset/raw/tiles/36429921.0.jpg"
+    },
+    {
+        "annotations": [],
+        "class": "image",
+        "filename": "dataset/raw/tiles/36429961.0.jpg"
+    },
+    {
+        "annotations": [],
+        "class": "image",
+        "filename": "dataset/raw/tiles/60265237.0.jpg"
+    }
+]

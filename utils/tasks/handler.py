@@ -1,3 +1,4 @@
+from __future__ import print_function
 import multiprocessing
 import os
 
@@ -13,11 +14,12 @@ class TasksHandler:
 
     @staticmethod
     def map(tasks, n_tasks=None, n_workers=None, ipython_notebook=False, **kwargs):
+        results = []
+
         try:
             tasks_queue = multiprocessing.Queue()
             results_queue = multiprocessing.Queue()
             pbar = ProgressBar(n_tasks, ipython_notebook)
-            results = []
 
             if n_tasks is None:
                 if type(tasks) is list:
@@ -42,7 +44,9 @@ class TasksHandler:
                 tasks_queue.put(None)
 
             for res in range(n_tasks):
-                results.append(results_queue.get())
+                result = results_queue.get()
+                if result is not None:
+                    results.append(result)
                 pbar.update()
 
             pbar.write('Joining...')
@@ -50,10 +54,13 @@ class TasksHandler:
                 w.join()
 
             pbar.finish()
-
-            return results
         except KeyboardInterrupt:
             os._exit(1)
+        except Exception as e:
+            print(e)
+            raise e
+        finally:
+            return results
 
 
 # class TasksHandler:

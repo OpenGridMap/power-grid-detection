@@ -5,7 +5,7 @@ import config
 
 def load_annotations_nodes(annotations_file=None):
     if annotations_file is None:
-        annotations_file = config.annotations_file
+        annotations_file = config.current_annotations_file
 
     with open(annotations_file, 'rb') as f:
         nodes = json.load(f)
@@ -18,8 +18,11 @@ def count_annotated_images(annotations_file=None):
     count = 0
 
     for node in nodes:
-        if 'annotations' in node and len(node['annotations']) > 2:
-            count += 1
+        if 'annotations' in node and len(node['annotations']) > 0:
+            for annotation in node['annotations']:
+                if annotation['class'] == 'tower':
+                    count += 1
+                    break
 
     return count
 
@@ -52,5 +55,6 @@ def get_rect_from_annotation(annotation):
     return x, y, width, height
 
 
-if __name__ == '__main__':
-    print(count_annotations())
+# if __name__ == '__main__':
+    # print(count_annotations())
+    # print(count_annotated_images(config.current_annotations_file))

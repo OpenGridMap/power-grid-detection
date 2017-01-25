@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, Graph
 from keras.layers import Input, K, Convolution2D, MaxPooling2D, Activation, Dense
 from keras.layers.core import Merge
 from keras.preprocessing.image import ImageDataGenerator

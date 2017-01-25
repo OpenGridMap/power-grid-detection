@@ -19,7 +19,7 @@ def get_crop_tasks(annotations_file, dest_dir):
     for node in nodes:
         annotations = node['annotations']
 
-        if len(annotations) > 2:
+        if len(annotations) > 0:
             i += 1
             yield CropTask(node['filename'], annotations, dest_dir, i)
             # task = CropTask(node['filename'], annotations, dest_dir, i)
@@ -37,4 +37,8 @@ def crop_annotated_images(annotations_file, dest_dir, ipython_notebook=False):
 
 
 if __name__ == '__main__':
-    crop_annotated_images(config.current_annotations_file, config.cropped_images_dir)
+    try:
+        crop_annotated_images(config.current_annotations_file, config.positive_samples_dir)
+    except Exception as e:
+        print(e)
+        raise e

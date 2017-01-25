@@ -21,7 +21,7 @@ def read_transnet_powerlines(filename=None, filter_by_regions=True, save):
 
 
 
-def filter_df_by_regions(df, regions):
+def filter_df_by_regions(df, regions='config'):
     if regions is not None:
         if type(regions) is list:
             regions = regions
