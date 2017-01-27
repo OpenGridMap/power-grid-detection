@@ -37,6 +37,7 @@ final_dataset_dir = os.path.join(dataset_dir, 'processed')
 annotations_file = os.path.join(dataset_dir, 'annotations.json')
 current_annotations_file = os.path.join(dataset_dir, 'annotations-v2.json')
 
+data_file = os.path.join(dataset_dir, 'data.csv')
 train_data_file = os.path.join(dataset_dir, 'train_data.csv')
 validation_data_file = os.path.join(dataset_dir, 'validation_data.csv')
 test_data_file = os.path.join(dataset_dir, 'test_data.csv')

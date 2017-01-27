@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from keras.models import Sequential, Model, Graph
-from keras.layers import Input, K, Convolution2D, MaxPooling2D, Activation, Dense
+from keras.layers import Input, K, Convolution2D, MaxPooling2D, Activation, Dense, Flatten
 from keras.layers.core import Merge
 from keras.preprocessing.image import ImageDataGenerator
 
@@ -85,6 +85,8 @@ def hdnn(input_shape=(48, 48, 3), input_tensor=None, weights=None):
 
     x = conv2d_block(input_tensor=img_input, nb_filter=84, kernel_size=(7, 7), stage=1, block=1, activation_fn='tanh')
     x = conv2d_block(input_tensor=x, nb_filter=84, kernel_size=(4, 4), stage=2, block=1, activation_fn='tanh')
+    x = conv2d_block(input_tensor=x, nb_filter=54, kernel_size=(4, 4), stage=3, block=1, activation_fn='tanh',
+                     pool_size=(3, 3))
 
     # Hybrid block parameters
     hybrid_block_params = dict(
@@ -97,9 +99,14 @@ def hdnn(input_shape=(48, 48, 3), input_tensor=None, weights=None):
         strides=(2, 2),
         pool_sizes=[(3, 3), (2, 2), (2, 2)]
     )
-    x = hybrid_conv2d_block(**hybrid_block_params)(x)
+    # x = hybrid_conv2d_block(**hybrid_block_params)(x)
 
-    x = Dense(output_dim=2, activation='tanh')(x)
+    x = Flatten()(x)
+    x = Dense(1024, activation='sigmoid')(x)
+    x = Dense(1024, activation='sigmoid')(x)
+    x = Dense(1024, activation='sigmoid')(x)
+    x = Dense(output_dim=2, activation='sigmoid')(x)
+    x = Activation('softmax')(x)
 
     model = Model(input=img_input, output=x, name='hdnn')
 
@@ -109,9 +116,10 @@ def hdnn(input_shape=(48, 48, 3), input_tensor=None, weights=None):
 
     return model
 
+
 if __name__ == '__main__':
     m = hdnn()
 
     m.compile(optimizer='rmsprop',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])

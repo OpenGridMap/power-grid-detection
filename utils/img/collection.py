@@ -3,6 +3,7 @@ import numpy as np
 from skimage import io
 from skimage.util import img_as_float
 from sklearn.utils import shuffle
+from keras.utils import np_utils
 
 
 class ImageCollection(io.ImageCollection):
@@ -13,7 +14,7 @@ class ImageCollection(io.ImageCollection):
     def concatenate(self):
         x = super(ImageCollection, self).concatenate()
         y = map(ImageCollection.is_tower, self.files)
-        return x, y
+        return x, np_utils.to_categorical(y)
 
     @staticmethod
     def load_func(f):
@@ -24,7 +25,7 @@ class ImageCollection(io.ImageCollection):
     @staticmethod
     def is_tower(path):
         if 'positive' in path:
-            return [1, 0]
+            return 1
         # elif 'negative' in path:
         else:
-            return [0, 1]
+            return 0

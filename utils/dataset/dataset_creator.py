@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from skimage import io
 from skimage import util
 from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
 from glob import glob1
 
 import config
@@ -38,8 +39,18 @@ def create_dataset():
 
     print(images.columns)
 
-    images.to_csv(config.train_data_file)
-    print(images['filepath'])
+    images.to_csv(config.data_file)
+
+    train_images, test_images = train_test_split(images, test_size=0.3, random_state=453)
+    validation_images, test_images = train_test_split(test_images, test_size=0.5, random_state=531)
+
+    train_images.to_csv(config.train_data_file)
+    validation_images.to_csv(config.validation_data_file)
+    test_images.to_csv(config.test_data_file)
+
+    print('Training samples : %d ' % train_images.shape[0])
+    print('Validation samples : %d' % validation_images.shape[0])
+    print('Test samples : %d' % test_images.shape[0])
 
 
 if __name__ == '__main__':

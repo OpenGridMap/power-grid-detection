@@ -10,6 +10,8 @@ from keras.callbacks import CSVLogger, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
 
+from hdnn import hdnn
+
 import theano
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -17,7 +19,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 import config
 
 # from utils.dataset.helpers import load_dataset
-from utils.dataset.data_iter import DataIter
+from utils.dataset.data_generator import DataGenerator
 
 
 def cnn_w_normalization(input_shape=(48, 48, 3)):
@@ -26,10 +28,22 @@ def cnn_w_normalization(input_shape=(48, 48, 3)):
 
     x = Convolution2D(128, 3, 3, activation='relu')(input_img)
     x = MaxPooling2D(pool_size=(2, 2))(x)
-    # x = BatchNormalization()(x)
+    x = BatchNormalization()(x)
 
-    x = Convolution2D(192, 3, 3, activation='relu')(x)
+    x = Convolution2D(128, 3, 3, activation='relu')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = BatchNormalization()(x)
+
+    x = Convolution2D(128, 3, 3, activation='relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = BatchNormalization()(x)
+    #
+    # x = Convolution2D(128, 3, 3, activation='relu')(x)
+    # x = MaxPooling2D(pool_size=(2, 2))(x)
+    # x = BatchNormalization()(x)
+    #
+    # x = Convolution2D(128, 3, 3, activation='relu')(x)
+    # x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
 
     x = Convolution2D(192, 3, 3, activation='relu')(x)
@@ -50,7 +64,8 @@ def cnn_w_normalization(input_shape=(48, 48, 3)):
 
 def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48, 3)):
     print('loading model...')
-    model = cnn_w_normalization(input_shape=input_shape)
+    # model = cnn_w_normalization(input_shape=input_shape)
+    model = hdnn(input_shape=input_shape)
     model.summary()
 
     optimizer = SGD(lr=lr)
@@ -61,22 +76,22 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48,
 
     # (X_train, y_train), (X_validation, y_validation), (X_test, y_test) = data
 
-    csv_logger = CSVLogger('3cnn_180_training.log')
+    csv_logger = CSVLogger('3cnn_180_1_training.log')
     # model_checkpointer = ModelCheckpoint(filepath="./mlp_5_a1_weights.hdf5", verbose=1, save_best_only=False)
-    best_model_checkpointer = ModelCheckpoint(filepath="./3cnn_180_training_weights_best.hdf5", verbose=1, save_best_only=True)
+    best_model_checkpointer = ModelCheckpoint(filepath="./3cnn_180_1_training_weights_best.hdf5", verbose=1, save_best_only=True)
 
     # history = model.fit(X_train, y_train, batch_size, n_epochs, validation_data=(X_validation, y_validation),
     #                     callbacks=[csv_logger, best_model_checkpointer], verbose=1)
 
-    data_iter = DataIter(batch_size=batch_size)
+    train_data_gen = DataGenerator(batch_size=batch_size)
 
-    history = model.fit_generator(data_iter, nb_epoch=50, samples_per_epoch=data_iter.n_batches * batch_size, callbacks=[csv_logger, best_model_checkpointer], verbose=1)
+    history = model.fit_generator(train_data_gen, nb_epoch=50, samples_per_epoch=train_data_gen.n_batches * batch_size, callbacks=[csv_logger, best_model_checkpointer], verbose=1)
 
     # res = []
     #
     # for epoch in range(n_epochs):
     #     print(epoch)
-    #     for x, y, n in tqdm(data_iter):
+    #     for x, y, n in tqdm(train_data_gen):
     #         print('Batch no : ', n)
             # res.append(model.train_on_batch(x, y))
             # best_model_checkpointer.on_batch_end(n)
@@ -93,4 +108,4 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48,
 
 if __name__ == '__main__':
     # train(load_dataset(), n_epochs=500, batch_size=84, input_shape=(180, 180, 3))
-    train(None, n_epochs=500, batch_size=16, input_shape=(180, 180, 3))
+    train(None, n_epochs=500, batch_size=256, input_shape=(180, 180, 3))

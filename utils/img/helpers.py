@@ -106,7 +106,7 @@ def crop_negative_samples(im_src, annotations, basename, samples_per_image, wind
         x, y = np.random.randint(0, im_src.size[0], (2,))
         rect = get_polygon_from_rect_box(x, y, *window_res)
 
-        if not rect.intersects(annotated_regions):
+        if not rect.intersects(annotated_regions) and 0 <= x <= 768 - window_res[0] and 0 <= y <= 768 - window_res[0]:
             path = os.path.join(negative_samples_dir, '%s_%d.jpg' % (basename, n_samples))
             crop_rect(im_src, x, y, window_res[0], window_res[1], path)
             n_samples += 1
