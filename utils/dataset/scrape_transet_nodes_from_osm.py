@@ -10,9 +10,10 @@ import config
 from utils.parsers.transnet_parser import TransnetParser
 from utils.scrapers.osm_nodes_scraper import OsmNodesScraper
 
-if __name__ == '__main__':
+
+def scrape_nodes():
     region = config.config_params['loc']
-    min_voltage = 220000
+    min_voltage = 380000
     max_voltage = 380000
 
     print('Parsing transnet data...')
@@ -33,3 +34,7 @@ if __name__ == '__main__':
     n = osm_scraper.scrape()
     print('Scraped %d nodes..' % n)
     print('done..')
+
+
+if __name__ == '__main__':
+    scrape_nodes()

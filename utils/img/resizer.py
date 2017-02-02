@@ -1,7 +1,7 @@
 import os
 from glob import glob
 
-from utils.img.resize_task import ResizeTask
+from utils.img.tasks import ResizeTask
 from utils.tasks.handler import TasksHandler
 
 

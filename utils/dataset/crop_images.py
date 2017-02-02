@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 import config
 
 from utils.tasks.handler import TasksHandler
-from utils.img.crop_task import CropTask
+from utils.img.tasks import CropTask
 from utils.dataset.annotations import count_annotated_images, load_annotations_nodes
 
 

@@ -1,10 +1,8 @@
 import os
-
 import numpy as np
-import matplotlib.pyplot as plt
 
 from PIL import Image
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon
 
 import config
 

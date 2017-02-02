@@ -48,10 +48,12 @@ class Coordinate(object):
 
     def get_tiles(self, zoom=18):
         tile = self.get_tile(zoom)
-        x_w = tile.x - 1
-        x_e = tile.x + 1
-        y_s = tile.y - 1
-        y_n = tile.y + 1
+        n = int(self.get_tiles_count(zoom)[0] / 2)
+
+        x_w = tile.x - n
+        x_e = tile.x + n
+        y_s = tile.y - n
+        y_n = tile.y + n
 
         for i in range(x_w, x_e + 1, 1):
             for j in range(y_s, y_n + 1, 1):
@@ -87,8 +89,12 @@ class Coordinate(object):
 
         return ne, sw
 
-    def get_tiles_count(self, zoom=18):
-        return 9
+    @staticmethod
+    def get_tiles_count(zoom=18):
+        if zoom > 19:
+            return 5, 5
+
+        return 3, 3
         # bbox = self.get_bbox(zoom)
         #
         # ne = mercantile.tile(*bbox[2:], zoom=zoom)

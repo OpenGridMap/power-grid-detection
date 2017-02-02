@@ -52,6 +52,7 @@ def get_rect_from_annotation(annotation):
     height = int(annotation['height'])
     x = int(annotation['x'])
     y = int(annotation['y'])
+
     return x, y, width, height
 
 

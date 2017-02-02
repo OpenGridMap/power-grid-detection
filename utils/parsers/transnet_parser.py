@@ -87,34 +87,7 @@ class TransnetParser:
 # if __name__ == '__main__':
 #     t = TransnetParser()
 #     t.filter_by_regions()
-    # t.filter_by_voltages([380000])
-    # t.filter_by_min_max_voltage(min_voltage=220000, max_voltage=380000)
+#     t.filter_by_voltages([380000])
+#     t.filter_by_min_max_voltage(min_voltage=220000, max_voltage=380000)
     # print(t.data.info())
     # print(len(t.nodes))
-    # voltages = []
-    # vs = t.data['voltage'].unique()
-    # for v in vs:
-    #     v = v[1:-1]
-    #     vss = v.split(',')
-    #     voltages += vss
-    #
-    # # voltages = map(int, voltages)
-    # # voltages = set(voltages)
-    # # print(len(voltages))
-    #
-    # df = pd.DataFrame(voltages, columns=['voltage'], dtype=int)
-    # # df = df['voltage'].unique()
-    #
-    # print(df.shape)
-    #
-    # # df = pd.DataFrame(voltages, dtype=int)
-    # # df = df.rename(columns={0: 'voltage'})
-    # # print(voltages)
-    # # print(df['voltage'].unique().shape)
-    #
-    # df = df['voltage'][df['voltage'] > 370000].unique()
-    # print(df.shape)
-    # t.filter_by_voltage(df)
-    # print(len(t.nodes))
-    #
-    #

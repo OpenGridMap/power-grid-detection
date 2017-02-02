@@ -1,8 +1,9 @@
 from __future__ import print_function
 
 import os
+import sys
+import traceback
 import pickle
-
 import lxml
 import pandas as pd
 import numpy as np
@@ -15,6 +16,7 @@ from utils.tasks.handler import TasksHandler
 from utils.requests.requests_handler import RequestsHandler
 from utils.geo.coordinate import Coordinate
 from utils.tasks.progress_bar import ProgressBar
+from utils.dataset.nodes import to_csv
 
 
 class OsmNodesScraper:
@@ -26,45 +28,16 @@ class OsmNodesScraper:
         # self.requests_handler = RequestsHandler()
 
     def scrape(self, filepath=None, ipython_notebook=False):
-        # nodes = []
-        # pbar = ProgressBar(len(self.nodes))
-
-        # results = TasksHandler.map(self.get_osm_scrape_tasks(), n_tasks=len(self.nodes), n_workers=128,
-        results = TasksHandler.map(self.get_osm_scrape_tasks(), n_tasks=5000, n_workers=128,
+        results = TasksHandler.map(self.get_osm_scrape_tasks(), n_tasks=len(self.nodes), n_workers=128,
                                    requests_handler=True, ipython_notebook=ipython_notebook)
-        n = self.to_csv(results, filepath)
-
-        return n
-
-        # try:
-        #     for node in self.nodes:
-        #         res = self.requests_handler.get(self.get_url(node))
-        #         coord = self.get_coord_from_osm_response(res)
-        #         if coord is not None:
-        #             point = {'node': node, 'lat': coord.latitude, 'lon': coord.longitude}
-        #             nodes.append(point)
-        #         pbar.update()
-        # finally:
-        #     self.to_csv(nodes, filepath)
-        #     pbar.finish()
+        return to_csv(results, filepath)
 
     def get_osm_scrape_tasks(self):
-        # for node in self.nodes:
-        #     yield ScrapeTask(node)
-
-        for i in range(5000):
-            yield ScrapeTask(self.nodes[i])
-
-    @staticmethod
-    def to_csv(nodes, filepath=None):
-        if filepath is None:
-            filepath = config.nodes
-
-        df = pd.DataFrame(nodes)
-        print(df.head())
-        df.to_csv(filepath, sep=',')
-
-        return df.shape[0]
+        for node in self.nodes:
+            yield ScrapeTask(node)
+        #
+        # for i in range(5000):
+        #     yield ScrapeTask(self.nodes[i])
 
     @staticmethod
     def get_url(node):
@@ -79,13 +52,19 @@ class OsmNodesScraper:
 
             return Coordinate(lat, lon)
         except lxml.etree.XMLSyntaxError as e:
-            # print(e)
+            print(e)
+            traceback.print_exc(file=sys.stdout)
+            raise e
             return None
         except AttributeError as e:
-            # print(e)
+            print(e)
+            traceback.print_exc(file=sys.stdout)
+            raise e
             return None
         except Exception as e:
-            # print(e)
+            print(e)
+            traceback.print_exc(file=sys.stdout)
+            raise e
             return None
 
 
@@ -100,11 +79,3 @@ class ScrapeTask:
             return {'osm_id': self.node, 'lat': coord.latitude, 'lon': coord.longitude}
         except Exception as e:
             return None
-
-
-if __name__ == '__main__':
-    with open(config.transnet_nodes_file, "rb") as f:
-        nodes = pickle.load(f)
-
-    scraper = OsmNodesScraper(nodes, config.config_params['loc'])
-    scraper.scrape()

@@ -1,14 +1,36 @@
 import os
 
 from PIL import Image
+
 import config
+
+from utils.tiles.adapters import get_adapter
+
+
+class TilesScrapeTask:
+    def __init__(self, coord, zoom, adapter):
+        self.coord = coord
+        self.zoom = zoom
+        self.adapter = adapter
+
+    def __call__(self, requests_handler):
+        tiles = self.coord.get_tiles(self.zoom)
+
+        for tile in tiles:
+            url = self.adapter.get_url(tile)
+            filepath = self.adapter.get_filepath(tile)
+
+            requests_handler.get_file(url, filepath)
+
+        return
 
 
 class TilesAffixTask(object):
-    def __init__(self, node, coord, zoom):
+    def __init__(self, node, coord, zoom, adapter):
         self.node = node
         self.coord = coord
         self.zoom = zoom
+        self.adapter = adapter
 
         if not os.path.exists(config.affixed_tiles_dir):
             os.makedirs(config.affixed_tiles_dir)
@@ -43,14 +65,15 @@ class TilesAffixTask(object):
         try:
             for i in range(x_n):
                 for j in range(y_n):
-                    filename = "{}_{}_{}.jpg".format(i + x_min, j + y_min, self.zoom)
-                    file_path = os.path.join(config.tiles_cache_dir, filename)
+                    filepath = self.adapter.get_filepath((i + x_min, j + y_min, self.zoom))
+                    # filename = "{}_{}_{}.jpg".format(i + x_min, j + y_min, self.zoom)
+                    # filepath = os.path.join(config.tiles_cache_dir, filename)
 
-                    if os.path.exists(file_path):
-                        tile_im = Image.open(file_path)
+                    if os.path.exists(filepath):
+                        tile_im = Image.open(filepath)
                         im.paste(tile_im, (i * res, j * res))
                     else:
-                        print('Image not found : %s' % file_path)
+                        print('Image not found : %s' % filepath)
                         return
 
             im.save(self.filepath, 'JPEG')

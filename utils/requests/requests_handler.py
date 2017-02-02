@@ -1,10 +1,12 @@
 import os
 import requests
+import config
 
 
 class RequestsHandler:
     def __init__(self):
         self.session = requests.Session()
+        self.session.proxies = config.proxies
 
     def get(self, url, **kwargs):
         try:
@@ -30,8 +32,13 @@ class RequestsHandler:
 
             return True
         else:
-            print(req.status_code, req.content)
+            print(req.status_code)
+            # print(req.content)
             return False
 
     def __del__(self):
         self.session.close()
+
+# if __name__ == '__main__':
+#     r = RequestsHandler()
+#     print(r.get("http://httpbin.org/ip").text)

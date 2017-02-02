@@ -6,6 +6,7 @@ import pandas as pd
 import config
 
 from utils.geo.coordinate import Coordinate
+from utils.dataset.nodes import get_nodes_df
 
 annotations_file = config.annotations_file
 
@@ -15,16 +16,18 @@ if os.path.exists(annotations_file):
 annotations = []
 
 # files = glob.iglob(config.affixed_tiles_dir + '/*.jpg')
-nodes = pd.read_csv(config.nodes, index_col=0, nrows=30000)
+# nodes = pd.read_csv(config.nodes, index_col=0, nrows=30000)
+nodes, n = get_nodes_df()
 
 for node in nodes.iterrows():
     coord = Coordinate(lat=node[1]['lat'], lon=node[1]['lon'])
-    path = os.path.join(config.affixed_tiles_dir, str(int(node[1]['osm_id'])) + '.jpg')
+    # path = os.path.join(config.affixed_tiles_dir, str(int(node[1]['osm_id'])) + '.jpg')
+    path = os.path.join(config.preprocessed_tiles_dir, str(int(node[1]['osm_id'])) + '.jpg')
 
     if os.path.exists(path):
-        crop_res = 180.
-        crop_box = coord.get_crop_box(zoom=18, crop_size=crop_res, x_crop_offset=0, y_crop_offset=48)
-        tile_coordinates = coord.get_tile_coordinates(zoom=18)
+        crop_res = 140.
+        crop_box = coord.get_crop_box(zoom=18, crop_size=crop_res, x_crop_offset=0, y_crop_offset=0)
+        tile_coordinates = coord.get_tile_coordinates(zoom=19)
         properties = {
             'annotations': [
                 {

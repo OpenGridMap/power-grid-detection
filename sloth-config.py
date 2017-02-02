@@ -11,7 +11,9 @@ LABELS = (
     {
         "attributes": {
             "type":  "rect",
-            "class": "tower"
+            "class": "tower",
+            "width": 140,
+            "height": 140
         },
         "item":     "sloth.items.RectItem",
         "inserter": "sloth.items.RectItemInserter",

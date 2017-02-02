@@ -1,7 +1,10 @@
+
 import numpy as np
 
 from skimage import io
 from skimage.util import img_as_float
+from skimage.transform import resize
+from skimage.feature import canny, hog
 from sklearn.utils import shuffle
 from keras.utils import np_utils
 
@@ -17,9 +20,19 @@ class ImageCollection(io.ImageCollection):
         return x, np_utils.to_categorical(y)
 
     @staticmethod
-    def load_func(f):
-        img = io.imread(f)
+    def load_func(f, **kwargs):
+        img = io.imread(f, as_grey=True)
         img = img_as_float(img).astype(np.float32)
+
+        # edges = canny(img, sigma=0.80, low_threshold=0.3, high_threshold=0.2)
+
+        # fd = hog(img, orientations=9, pixels_per_cell=(12, 12), cells_per_block=(4, 4))
+        # hog_shape = np.sqrt(fd.shape[0]).astype(int)
+        # fd = resize(fd.reshape(hog_shape, hog_shape), (img.shape[0], img.shape[1]))
+
+        # img = np.dstack((img, edges, fd))
+        # img = edges.reshape((edges.shape[0], edges.shape[1], 1))
+
         return img
 
     @staticmethod
@@ -29,3 +42,6 @@ class ImageCollection(io.ImageCollection):
         # elif 'negative' in path:
         else:
             return 0
+
+# if __name__ == '__main__':
+#     images = ImageCollection('/home/tanuj/Workspace/power-grid-detection/data/cache/google-maps/3x3_tiles/*.jpg')

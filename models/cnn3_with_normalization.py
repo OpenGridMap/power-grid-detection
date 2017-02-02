@@ -7,7 +7,6 @@ from keras.layers import Input, Convolution2D, MaxPooling2D, BatchNormalization,
 from keras.models import Model
 from keras.optimizers import SGD
 from keras.callbacks import CSVLogger, ModelCheckpoint
-from keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
 
 from hdnn import hdnn
@@ -26,29 +25,29 @@ def cnn_w_normalization(input_shape=(48, 48, 3)):
     # input_img = Input(input_shape, tensor=theano.shared(np.zeros(input_shape, dtype=np.float32), borrow=True))
     input_img = Input(input_shape)
 
-    x = Convolution2D(128, 3, 3, activation='relu')(input_img)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = BatchNormalization()(x)
+    x = Convolution2D(128, 7, 7, activation='relu', border_mode='same')(input_img)
+    x = MaxPooling2D(pool_size=(2, 2), border_mode='same')(x)
+    # x = BatchNormalization()(x)
 
-    x = Convolution2D(128, 3, 3, activation='relu')(x)
+    x = Convolution2D(64, 5, 5, activation='relu', border_mode='same')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = BatchNormalization()(x)
+    # x = BatchNormalization()(x)
 
-    x = Convolution2D(128, 3, 3, activation='relu')(x)
+    x = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = BatchNormalization()(x)
-    #
-    # x = Convolution2D(128, 3, 3, activation='relu')(x)
-    # x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
     #
     # x = Convolution2D(128, 3, 3, activation='relu')(x)
     # x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
+    #
+    # x = Convolution2D(128, 3, 3, activation='relu')(x)
+    # x = MaxPooling2D(pool_size=(2, 2))(x)
+    # x = BatchNormalization()(x)
 
-    x = Convolution2D(192, 3, 3, activation='relu')(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = BatchNormalization()(x)
+    # x = Convolution2D(192, 3, 3, activation='relu')(x)
+    # x = MaxPooling2D(pool_size=(2, 2))(x)
+    # x = BatchNormalization()(x)
 
     x = Flatten()(x)
     x = Dense(1024, activation='sigmoid')(x)
@@ -76,9 +75,10 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48,
 
     # (X_train, y_train), (X_validation, y_validation), (X_test, y_test) = data
 
-    csv_logger = CSVLogger('3cnn_180_1_training.log')
+    name = '140_gray_canny_hog'
+    csv_logger = CSVLogger('3cnn_%s_training.log' % name)
     # model_checkpointer = ModelCheckpoint(filepath="./mlp_5_a1_weights.hdf5", verbose=1, save_best_only=False)
-    best_model_checkpointer = ModelCheckpoint(filepath="./3cnn_180_1_training_weights_best.hdf5", verbose=1, save_best_only=True)
+    best_model_checkpointer = ModelCheckpoint(filepath="./3cnn_%s_training_weights_best.hdf5" % name, verbose=1, save_best_only=True)
 
     # history = model.fit(X_train, y_train, batch_size, n_epochs, validation_data=(X_validation, y_validation),
     #                     callbacks=[csv_logger, best_model_checkpointer], verbose=1)
@@ -108,4 +108,5 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48,
 
 if __name__ == '__main__':
     # train(load_dataset(), n_epochs=500, batch_size=84, input_shape=(180, 180, 3))
+    # train(None, n_epochs=500, batch_size=256, input_shape=(180, 180, 3))
     train(None, n_epochs=500, batch_size=256, input_shape=(180, 180, 3))

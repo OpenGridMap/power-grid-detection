@@ -15,17 +15,19 @@ class DataGenerator:
 
         self.ic = ImageCollection(self.dataset['filepath'].values.tolist())
         self.n_samples = len(self.ic)
-        self.n_batches = 1. * self.n_samples / batch_size
+        # self.n_batches = 1. * self.n_samples / batch_size
         self.n_batches = int(self.n_samples / batch_size)
 
-        if self.n_batches % 1 is not 0:
-            self.n_batches = int(self.n_batches) + 1
+        # if self.n_batches % 1 is not 0:
+        #     self.n_batches = int(self.n_batches) + 1
 
         self.batch_no = 0
 
     def __iter__(self):
         for batch_no in range(self.n_batches):
             x, y = self.ic[batch_no * self.batch_size: (batch_no + 1) * self.batch_size].concatenate()
+            # print(x.shape)
+            # print(y.shape)
             yield x, y
 
     def next(self):
@@ -35,6 +37,9 @@ class DataGenerator:
             self.batch_no += 1
         else:
             self.reset()
+
+        # print(x.shape)
+        # print(y.shape)
 
         return x, y
 
