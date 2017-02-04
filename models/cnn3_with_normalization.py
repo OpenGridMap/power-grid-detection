@@ -21,19 +21,25 @@ import config
 from utils.dataset.data_generator import DataGenerator
 
 
-def cnn_w_normalization(input_shape=(48, 48, 3)):
+def cnn_w_normalization(input_shape=(48, 48, 3), activation_fn='relu'):
     # input_img = Input(input_shape, tensor=theano.shared(np.zeros(input_shape, dtype=np.float32), borrow=True))
     input_img = Input(input_shape)
 
-    x = Convolution2D(128, 7, 7, activation='relu', border_mode='same')(input_img)
+    # x = Convolution2D(128, 7, 7, activation='relu', border_mode='same')(input_img)
+    x = Convolution2D(128, 7, 7, border_mode='same')(input_img)
+    x = Activation(activation_fn)(x)
     x = MaxPooling2D(pool_size=(2, 2), border_mode='same')(x)
     # x = BatchNormalization()(x)
 
-    x = Convolution2D(64, 5, 5, activation='relu', border_mode='same')(x)
+    # x = Convolution2D(64, 5, 5, activation='relu', border_mode='same')(x)
+    x = Convolution2D(64, 5, 5, border_mode='same')(x)
+    x = Activation(activation_fn)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
 
-    x = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(x)
+    # x = Convolution2D(64, 3, 3, activation='relu', border_mode='same')(x)
+    x = Convolution2D(64, 3, 3, border_mode='same')(x)
+    x = Activation(activation_fn)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     # x = BatchNormalization()(x)
     #

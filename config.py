@@ -39,7 +39,7 @@ processed_negative_samples_dir = os.path.join(final_dataset_dir, 'negative')
 
 
 annotations_file = os.path.join(dataset_dir, 'annotations.json')
-current_annotations_file = os.path.join(dataset_dir, 'annotations-v3.json')
+current_annotations_file = os.path.join(dataset_dir, 'annotations-v4.json')
 
 data_file = os.path.join(dataset_dir, 'data.csv')
 train_data_file = os.path.join(dataset_dir, 'train_data.csv')
