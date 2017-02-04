@@ -108,10 +108,14 @@ class Coordinate(object):
     def get_crop_box(self, zoom, tile_res=256, crop_size=256, x_crop_offset=0, y_crop_offset=20):
         tile_coord = self.get_tile_coordinates(zoom)
         xpix, ypix = tile_coord[2], tile_coord[3]
+        tiles_shape = self.get_tiles_count(zoom)
+
+        tile_x_offset = int(tiles_shape[0] / 2)
+        tile_y_offset = int(tiles_shape[1] / 2)
 
         return (
-            tile_res + xpix - crop_size / 2. - x_crop_offset,
-            tile_res + ypix - crop_size / 2. - y_crop_offset,
-            tile_res + xpix + crop_size / 2. - x_crop_offset,
-            tile_res + ypix + crop_size / 2. - y_crop_offset
+            tile_x_offset * tile_res + xpix - crop_size / 2. - x_crop_offset,
+            tile_y_offset * tile_res + ypix - crop_size / 2. - y_crop_offset,
+            tile_x_offset * tile_res + xpix + crop_size / 2. - x_crop_offset,
+            tile_y_offset * tile_res + ypix + crop_size / 2. - y_crop_offset
         )

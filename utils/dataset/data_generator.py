@@ -31,15 +31,17 @@ class DataGenerator:
             yield x, y
 
     def next(self):
+        if self.batch_no == self.n_batches:
+            self.reset()
+
         x, y = self.ic[self.batch_no * self.batch_size: (self.batch_no + 1) * self.batch_size].concatenate()
 
-        if self.batch_no < self.n_batches:
-            self.batch_no += 1
-        else:
-            self.reset()
+        self.batch_no += 1
 
         # print(x.shape)
         # print(y.shape)
+
+        # print('Batch %d/%d' % (self.batch_no, self.n_batches))
 
         return x, y
 

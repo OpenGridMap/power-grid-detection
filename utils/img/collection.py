@@ -33,6 +33,9 @@ class ImageCollection(io.ImageCollection):
         # img = np.dstack((img, edges, fd))
         # img = edges.reshape((edges.shape[0], edges.shape[1], 1))
 
+        if len(img.shape) == 2:
+            img = img.reshape((img.shape[0], img.shape[1], 1))
+
         return img
 
     @staticmethod

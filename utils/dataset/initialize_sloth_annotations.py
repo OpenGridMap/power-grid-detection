@@ -26,8 +26,8 @@ for node in nodes.iterrows():
 
     if os.path.exists(path):
         crop_res = 140.
-        crop_box = coord.get_crop_box(zoom=18, crop_size=crop_res, x_crop_offset=0, y_crop_offset=0)
-        tile_coordinates = coord.get_tile_coordinates(zoom=19)
+        crop_box = coord.get_crop_box(zoom=19, crop_size=crop_res, x_crop_offset=0, y_crop_offset=0)
+        # tile_coordinates = coord.get_tile_coordinates(zoom=19)
         properties = {
             'annotations': [
                 {
@@ -50,14 +50,13 @@ for node in nodes.iterrows():
         }
         annotations.append(properties)
 
-# for f in files:
+    # for f in files:
     # properties = {
     #     'annotations': [],
     #     'class': 'image',
     #     'filename': os.path.abspath(f)
     # }
     # annotations.append(properties)
-
 
 with open(annotations_file, 'wb') as f:
     json.dump(annotations, f, sort_keys=True, indent=4)
