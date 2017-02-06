@@ -13,14 +13,33 @@ class TilesScrapeTask:
         self.zoom = zoom
         self.adapter = adapter
 
+        print(self.coord.get_tiles_count(19))
+
     def __call__(self, requests_handler):
         tiles = self.coord.get_tiles(self.zoom)
+
+        print(tiles)
 
         for tile in tiles:
             url = self.adapter.get_url(tile)
             filepath = self.adapter.get_filepath(tile)
 
             requests_handler.get_file(url, filepath)
+            print(filepath)
+
+        return
+
+
+class TileScrapeTask:
+    def __init__(self, tile, adapter):
+        self.tile = tile
+        self.adapter = adapter
+
+    def __call__(self, requests_handler):
+        url = self.adapter.get_url(self.tile)
+        filepath = self.adapter.get_filepath(self.tile)
+
+        requests_handler.get_file(url, filepath)
 
         return
 
@@ -75,7 +94,7 @@ class TilesAffixTask(object):
                     else:
                         print('Image not found : %s' % filepath)
                         return
-
+            self.filepath
             im.save(self.filepath, 'JPEG')
             # return im
         except Exception as e:

@@ -10,12 +10,12 @@ from keras.utils.np_utils import to_categorical
 import config
 
 
-# def get_image_collection(path):
-#     if os.path.exists(path):
-#         pattern = os.path.abspath(path) + os.sep + '128/*.jpg'
-#         return io.imread_collection(pattern, conserve_memory=False)
-#
-#     raise Exception
+def get_image_collection(path):
+    if os.path.exists(path):
+        pattern = os.path.abspath(path) + os.sep + '/*.jpg'
+        return io.imread_collection(pattern, conserve_memory=False)
+
+    raise Exception
 #
 #
 # def create_dataset(test_data_size=0.15, validation_data_size=0.15, dataset_path=None, flatten=False):

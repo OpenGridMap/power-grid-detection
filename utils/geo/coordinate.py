@@ -119,3 +119,53 @@ class Coordinate(object):
             tile_x_offset * tile_res + xpix + crop_size / 2. - x_crop_offset,
             tile_y_offset * tile_res + ypix + crop_size / 2. - y_crop_offset
         )
+    
+
+class AreaCoordinates(object):
+    def __init__(self, top_left_coord, bottom_right_coord):
+        self.top_left_coord = top_left_coord
+        self.bottom_right_coord = bottom_right_coord
+
+    def get_tiles(self, zoom=18):
+        top_left_tile = self.top_left_coord.get_tile(zoom)
+        bottom_right_tile = self.bottom_right_coord.get_tile(zoom)
+
+        # tiles = []
+
+        # print(top_left_tile.x, bottom_right_tile.x + 1, 1)
+        # print(bottom_right_tile.y, top_left_tile.y + 1, 1)
+
+        for i in range(top_left_tile.x, bottom_right_tile.x + 1, 1):
+            for j in range(top_left_tile.y, bottom_right_tile.y + 1, 1):
+                yield i, j, zoom
+                # print i, j, zoom
+                # tiles.append((i, j, zoom))
+        #
+        # return tiles
+
+    def get_tiles_count(self, zoom=18):
+        top_left_tile = self.top_left_coord.get_tile(zoom)
+        bottom_right_tile = self.bottom_right_coord.get_tile(zoom)
+
+        return abs(bottom_right_tile.x - top_left_tile.x + 1) * abs(top_left_tile.y - bottom_right_tile.y + 1)
+
+    # @property
+    # def top(self):
+    #     return self.top_left_coord.y
+    #
+    # @property
+    # def bottom(self):
+    #     return self.bottom_right_coord.y
+    #
+    # @property
+    # def left(self):
+    #     return self.top_left_coord.x
+    #
+    # @property
+    # def right(self):
+    #     return self.bottom_right_coord.x
+
+
+if __name__ == '__main__':
+    c = Coordinate(10, 10)
+    print(c.get_tile(19))

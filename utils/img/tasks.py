@@ -115,7 +115,10 @@ class PreprocessTask(object):
 
 
 if __name__ == '__main__':
-    p = PreprocessTask('/home/tanuj/Workspace/power-grid-detection/data/19_cache/google-maps/3x3_tiles/244410425.jpg',
-                       None)
-
+    # p = PreprocessTask('/home/tanuj/Workspace/power-grid-detection/data/19_cache/google-maps/3x3_tiles/244410425.jpg',
+    #                    None)
+    #
+    # p()
+    Image.MAX_IMAGE_PIXELS = None
+    p = PreprocessTask('/home/tanuj/Workspace/power-grid-detection/dataset/test/3.jpg', '/home/tanuj/Workspace/power-grid-detection/dataset/test/processed')
     p()

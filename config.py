@@ -46,6 +46,10 @@ train_data_file = os.path.join(dataset_dir, 'train_data.csv')
 validation_data_file = os.path.join(dataset_dir, 'validation_data.csv')
 test_data_file = os.path.join(dataset_dir, 'test_data.csv')
 
+results_dir = os.path.join(project_dir, 'training', 'results')
+
+test_dir = os.path.join(dataset_dir, 'test')
+
 germany = [
     'bayern',
     'nordrhein-westfalen',
