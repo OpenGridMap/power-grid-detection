@@ -9,4 +9,5 @@ from utils.scrapers.mercator_tiles_scraper import MercatorTilesScraper
 
 if __name__ == '__main__':
     arcgis_scraper = MercatorTilesScraper()
-    arcgis_scraper.scrape(zoom=19)
+    # arcgis_scraper.scrape(zoom=19)
+    arcgis_scraper.affix_tiles(zoom=19)

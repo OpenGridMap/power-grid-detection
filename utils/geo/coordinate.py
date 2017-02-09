@@ -105,7 +105,7 @@ class Coordinate(object):
         #
         # return (abs(ne.x - sw.x) + 1) * (abs(ne.y - sw.y) + 1)
     
-    def get_crop_box(self, zoom, tile_res=256, crop_size=256, x_crop_offset=0, y_crop_offset=20):
+    def get_crop_box(self, zoom, tile_res=256, crop_size=(256, 256), crop_x_offset=0, crop_y_offset=20):
         tile_coord = self.get_tile_coordinates(zoom)
         xpix, ypix = tile_coord[2], tile_coord[3]
         tiles_shape = self.get_tiles_count(zoom)
@@ -114,11 +114,15 @@ class Coordinate(object):
         tile_y_offset = int(tiles_shape[1] / 2)
 
         return (
-            tile_x_offset * tile_res + xpix - crop_size / 2. - x_crop_offset,
-            tile_y_offset * tile_res + ypix - crop_size / 2. - y_crop_offset,
-            tile_x_offset * tile_res + xpix + crop_size / 2. - x_crop_offset,
-            tile_y_offset * tile_res + ypix + crop_size / 2. - y_crop_offset
+            tile_x_offset * tile_res + xpix - crop_size[0] / 2. - crop_x_offset,
+            tile_y_offset * tile_res + ypix - crop_size[1] / 2. - crop_y_offset,
+            tile_x_offset * tile_res + xpix + crop_size[0] / 2. - crop_x_offset,
+            tile_y_offset * tile_res + ypix + crop_size[1] / 2. - crop_y_offset
         )
+
+    @classmethod
+    def from_transnet_node(cls, node):
+        return cls(lat=node[1]['lat'], lon=node[1]['lon'])
     
 
 class AreaCoordinates(object):
@@ -130,18 +134,9 @@ class AreaCoordinates(object):
         top_left_tile = self.top_left_coord.get_tile(zoom)
         bottom_right_tile = self.bottom_right_coord.get_tile(zoom)
 
-        # tiles = []
-
-        # print(top_left_tile.x, bottom_right_tile.x + 1, 1)
-        # print(bottom_right_tile.y, top_left_tile.y + 1, 1)
-
         for i in range(top_left_tile.x, bottom_right_tile.x + 1, 1):
             for j in range(top_left_tile.y, bottom_right_tile.y + 1, 1):
                 yield i, j, zoom
-                # print i, j, zoom
-                # tiles.append((i, j, zoom))
-        #
-        # return tiles
 
     def get_tiles_count(self, zoom=18):
         top_left_tile = self.top_left_coord.get_tile(zoom)
@@ -164,8 +159,3 @@ class AreaCoordinates(object):
     # @property
     # def right(self):
     #     return self.bottom_right_coord.x
-
-
-if __name__ == '__main__':
-    c = Coordinate(10, 10)
-    print(c.get_tile(19))

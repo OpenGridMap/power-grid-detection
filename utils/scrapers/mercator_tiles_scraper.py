@@ -28,6 +28,9 @@ class MercatorTilesScraper(object):
                          ipython_notebook=ipython_notebook)
         print('Downloaded all tasks\n')
 
+    def affix_tiles(self, n=None, filename=None, zoom=18, ipython_notebook=False):
+        nodes, n = get_nodes_df(filename, n)
+
         tiles_affix_tasks = self.get_tiles_affix_tasks(nodes, zoom, self.adapter)
         TasksHandler.map(tiles_affix_tasks, n_tasks=n, ipython_notebook=ipython_notebook)
         print('Finished affixing tiles')

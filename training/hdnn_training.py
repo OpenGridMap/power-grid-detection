@@ -30,7 +30,7 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48,
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
     print('done.')
 
-    name = 'cnn_140_1_thr_dil_ero_lr_%f' % lr
+    name = 'cnn_140_grey_lr_%f' % lr
     csv_logger = CSVLogger('%s_training.log' % name)
     best_model_checkpointer = ModelCheckpoint(filepath=("./%s_training_weights_best.hdf5" % name), verbose=1,
                                               save_best_only=True)
@@ -58,7 +58,7 @@ def train(data=None, lr=0.001, batch_size=256, n_epochs=50, input_shape=(48, 48,
     print('Test score:', score[0])
     print('Test accuracy:', score[1])
 
-    return history
+    return model, history
 
     # return model, res
 

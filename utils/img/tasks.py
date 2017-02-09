@@ -7,16 +7,17 @@ from PIL import Image
 from skimage import io, color
 from skimage.morphology import dilation, erosion, diamond
 
-from utils.dataset.annotations import annotations_iter
-from utils.img.helpers import crop_annotated_region, crop_positive_samples, crop_negative_samples
+from utils.dataset.annotations import annotations_iter, get_osm_id_from_annotation
+from utils.img.helpers import crop_annotated_region, crop_negative_samples, crop_positive_sample_windows, crop_negative_sample_windows
 
 
 class CropTask(object):
-    def __init__(self, src_file, annotations, dest_dir, task_no=None, **kwargs):
+    def __init__(self, src_file, annotations, dest_dir, negative_samples_per_image, task_no=None, **kwargs):
         self.src_file = src_file
         self.annotations = annotations
         self.dest_dir = dest_dir
         self.task_no = task_no
+        self.negative_samples_per_annotation = negative_samples_per_image
 
         if not os.path.exists(self.dest_dir):
             os.makedirs(self.dest_dir)
@@ -26,39 +27,40 @@ class CropTask(object):
 
         try:
             im_src = Image.open(self.src_file)
-            self.crop_annotated_regions(im_src, basename)
-            # self.crop_positive_samples(im_src, basename)
+            self.crop_positive_sample(im_src, basename)
             self.crop_negative_samples(im_src, basename)
+            # self.crop_positive_sample_windows(im_src, basename)
+            # self.crop_negative_sample_windows(im_src, basename)
         except Exception as e:
             traceback.print_exc()
             raise e
         finally:
             return
 
-    def crop_annotated_regions(self, im_src, basename):
-        i = 0
-
-        for annotation in annotations_iter(self.annotations):
-            path = self.get_path(basename, i)
-            i += 1
-
+    def crop_positive_sample(self, im_src, basename):
+        for i, annotation in enumerate(annotations_iter(self.annotations)):
+            path = os.path.join(self.dest_dir, 'positive', '%d.jpg' % get_osm_id_from_annotation(annotation))
             crop_annotated_region(im_src, annotation, path)
 
-    def crop_positive_samples(self, im_src, basename):
+    def crop_negative_samples(self, im_src, basename):
+        path = os.path.join(self.dest_dir, 'negative')
+        crop_negative_samples(im_src, self.annotations, self.negative_samples_per_annotation, basename, path)
+
+    def crop_positive_sample_windows(self, im_src, basename):
         for annotation in annotations_iter(self.annotations):
-            crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(140, 140))
+            crop_positive_sample_windows(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(140, 140))
             # crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no))
             # crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(128, 128))
             # crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(256, 256))
 
-    def crop_negative_samples(self, im_src, basename):
+    def crop_negative_sample_windows(self, im_src, basename):
         basename = '%s_%d' % (basename, self.task_no)
-        crop_negative_samples(im_src, self.annotations, basename, 3, window_res=(140, 140))
+        crop_negative_sample_windows(im_src, self.annotations, basename, 3, window_res=(140, 140))
         # crop_negative_samples(im_src, self.annotations, basename, 30)
         # crop_negative_samples(im_src, self.annotations, basename, 30, window_res=(128, 128))
         # crop_negative_samples(im_src, self.annotations, basename, 30, window_res=(256, 256))
 
-    def get_path(self, basename, i):
+    def get_negative_sample_windows_path(self, basename, i):
         filename = '%s_%d_%d.jpg' % (basename, i, self.task_no)
         path = os.path.join(self.dest_dir, filename)
         return path

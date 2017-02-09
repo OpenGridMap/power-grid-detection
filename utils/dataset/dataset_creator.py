@@ -25,6 +25,8 @@ def get_sample_from_image(image, image_dir, is_tower):
 def get_samples_from_dir(image_dir, is_tower, n_samples):
     images = images_in_dir(image_dir)
 
+    # image_dir = os.path.relpath(image_dir, config.project_dir)
+
     if n_samples is not None and isinstance(n_samples, int):
         images = images[:n_samples]
 
@@ -33,14 +35,20 @@ def get_samples_from_dir(image_dir, is_tower, n_samples):
     return images
 
 
-def create_dataset(n_positive_images=None, n_negative_images=None, test_set_size=0.15, validation_set_size=0.15):
-    # images = []
+def create_dataset(dataset_dir=None, n_positive_images=None, n_negative_images=None, test_ratio=0.15,
+                   validation_ratio=0.15):
+    if dataset_dir is None:
+        positive_samples_dir = config.positive_samples_dir
+        negative_samples_dir = config.negative_samples_dir
+    else:
+        positive_samples_dir = os.path.join(dataset_dir, 'positive')
+        negative_samples_dir = os.path.join(dataset_dir, 'negative')
 
-    positive_images = get_samples_from_dir(config.positive_samples_dir, 1, n_positive_images)
+    positive_images = get_samples_from_dir(positive_samples_dir, 1, n_positive_images)
 
     print('Positive samples : %d' % len(positive_images))
 
-    negative_images = get_samples_from_dir(config.negative_samples_dir, 0, n_negative_images)
+    negative_images = get_samples_from_dir(negative_samples_dir, 0, n_negative_images)
     print('Negative samples : %d' % len(negative_images))
 
     images = positive_images + negative_images
@@ -48,10 +56,10 @@ def create_dataset(n_positive_images=None, n_negative_images=None, test_set_size
     images = shuffle(images, random_state=17)
     images = pd.DataFrame(images)
 
-    train_images, test_images = train_test_split(images, test_size=test_set_size + validation_set_size,
+    train_images, test_images = train_test_split(images, test_size=test_ratio + validation_ratio,
                                                  random_state=453)
     validation_images, test_images = train_test_split(test_images,
-                                                      test_size=test_set_size / (test_set_size + validation_set_size),
+                                                      test_size=test_ratio / (test_ratio + validation_ratio),
                                                       random_state=531)
 
     images.to_csv(config.data_file)

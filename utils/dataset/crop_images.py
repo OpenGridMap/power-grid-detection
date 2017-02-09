@@ -14,24 +14,17 @@ def get_crop_tasks(annotations_file, dest_dir):
     nodes = load_annotations_nodes(annotations_file)
     i = 0
 
-    # tasks = []
-
     for node in nodes:
         annotations = node['annotations']
 
         if len(annotations) > 0:
             i += 1
             yield CropTask(node['filename'], annotations, dest_dir, i)
-            # task = CropTask(node['filename'], annotations, dest_dir, i)
-            # tasks.append(task)
-
-    # return tasks
 
 
 def crop_annotated_images(annotations_file, dest_dir, ipython_notebook=False):
-    tasks = get_crop_tasks(annotations_file, dest_dir)
-    # n = len(tasks)
     n = count_annotated_images(annotations_file)
+    tasks = get_crop_tasks(annotations_file, dest_dir)
     TasksHandler.map(tasks=tasks, n_tasks=n, ipython_notebook=ipython_notebook)
     print('Finished cropping images')
 

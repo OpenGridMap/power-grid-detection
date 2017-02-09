@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 import config
@@ -5,15 +6,22 @@ import config
 from utils.img.collection import ImageCollection
 
 
+def get_path(f):
+    return os.path.join(config.project_dir, f)
+
+
 class DataGenerator:
-    def __init__(self, dataset_file=None, batch_size=32):
+    def __init__(self, dataset_file=None, batch_size=32, as_grey=False):
         if dataset_file is None:
             dataset_file = config.data_file
 
         self.dataset = pd.read_csv(dataset_file)
         self.batch_size = batch_size
 
-        self.ic = ImageCollection(self.dataset['filepath'].values.tolist())
+        files = self.dataset['filepath'].values.tolist()
+        # files = map(get_path, files)
+
+        self.ic = ImageCollection(files, as_grey=as_grey)
         self.n_samples = len(self.ic)
         # self.n_batches = 1. * self.n_samples / batch_size
         self.n_batches = int(self.n_samples / batch_size)

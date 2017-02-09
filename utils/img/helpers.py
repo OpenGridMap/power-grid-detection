@@ -10,10 +10,7 @@ from utils.dataset.annotations import annotations_iter, get_rect_from_annotation
 
 
 def crop_rect(im_src, x, y, width, height, dest_path=None):
-    box = get_coord_from_rect_box(x, y, height, width)
-
-    # print(im_src.mode)
-
+    box = get_coord_from_rect_box(x, y, width, height)
     im = Image.new(im_src.mode, (width, height))
     cropped_region = im_src.crop(box)
     im.paste(cropped_region, (0, 0))
@@ -24,7 +21,7 @@ def crop_rect(im_src, x, y, width, height, dest_path=None):
     return im
 
 
-def get_coord_from_rect_box(x, y, height, width):
+def get_coord_from_rect_box(x, y, width, height):
     return x, y, x + width, y + height
 
 
@@ -37,7 +34,7 @@ def get_polygon_from_rect_box(x, y, height, width):
     ])
 
 
-def crop_positive_samples(im_src, annotation, basename, window_res=(48, 48), step_size=12):
+def crop_positive_sample_windows(im_src, annotation, basename, window_res=(48, 48), step_size=12):
     positive_samples_dir = os.path.join(config.positive_samples_dir)
     # positive_samples_dir = os.path.join(config.positive_samples_dir, str(window_res[0]))
     x, y, width, height = get_rect_from_annotation(annotation)
@@ -90,7 +87,30 @@ def crop_positive_samples(im_src, annotation, basename, window_res=(48, 48), ste
             im_window.save(path, 'JPEG')
 
 
-def crop_negative_samples(im_src, annotations, basename, samples_per_image, window_res=(48, 48)):
+def crop_negative_samples(im_src, annotations, samples_per_image, basename, samples_dir=None):
+    if samples_dir is None:
+        samples_dir = os.path.join(config.negative_samples_dir)
+
+    boxes = [get_rect_from_annotation(annotation) for annotation in annotations_iter(annotations)]
+    annotated_regions = MultiPolygon([get_polygon_from_rect_box(*box) for box in boxes])
+    n_samples = 0
+
+    width, height = boxes[0][-2:]
+
+    while True:
+        x, y = np.random.randint(0, im_src.size[0], (2,))
+        rect = get_polygon_from_rect_box(x, y, width, height)
+
+        if not rect.intersects(annotated_regions) and 0 <= x <= 768 - width and 0 <= y <= 768 - height:
+            path = os.path.join(samples_dir, '%s_%d.jpg' % (basename, n_samples))
+            crop_rect(im_src, x, y, width, height, path)
+            n_samples += 1
+
+        if n_samples >= samples_per_image:
+            break
+
+
+def crop_negative_sample_windows(im_src, annotations, basename, samples_per_image, window_res=(48, 48)):
     negative_samples_dir = os.path.join(config.negative_samples_dir)
     # negative_samples_dir = os.path.join(config.negative_samples_dir, str(window_res[0]))
     boxes = [get_rect_from_annotation(annotation) for annotation in annotations_iter(annotations)]
@@ -116,8 +136,6 @@ def crop_negative_samples(im_src, annotations, basename, samples_per_image, wind
 def crop_annotated_region(im_src, annotation, path):
     try:
         x, y, width, height = get_rect_from_annotation(annotation)
-
-        # print(width, height)
 
         crop_rect(im_src, x, y, width, height, path)
     except Exception as e:

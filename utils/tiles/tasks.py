@@ -45,16 +45,20 @@ class TileScrapeTask:
 
 
 class TilesAffixTask(object):
-    def __init__(self, node, coord, zoom, adapter):
+    def __init__(self, node, coord, zoom, adapter, affixed_tiles_dir=None):
         self.node = node
         self.coord = coord
         self.zoom = zoom
         self.adapter = adapter
 
-        if not os.path.exists(config.affixed_tiles_dir):
-            os.makedirs(config.affixed_tiles_dir)
+        if affixed_tiles_dir is None:
+            affixed_tiles_dir = config.affixed_tiles_dir
 
-        self.filepath = os.path.join(config.affixed_tiles_dir, str(self.node) + '.jpg')
+        if not os.path.exists(affixed_tiles_dir):
+            os.makedirs(affixed_tiles_dir)
+
+        # self.filepath = os.path.join(config.affixed_tiles_dir, str(self.node) + '.jpg')
+        self.filepath = os.path.join(affixed_tiles_dir, adapter.get_filename(coord.get_tile(zoom)))
 
     def __call__(self, **kwargs):
         if os.path.exists(self.filepath):
@@ -94,7 +98,7 @@ class TilesAffixTask(object):
                     else:
                         print('Image not found : %s' % filepath)
                         return
-            self.filepath
+
             im.save(self.filepath, 'JPEG')
             # return im
         except Exception as e:

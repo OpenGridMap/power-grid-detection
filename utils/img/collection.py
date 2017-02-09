@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from skimage import io
@@ -10,8 +9,9 @@ from keras.utils import np_utils
 
 
 class ImageCollection(io.ImageCollection):
-    def __init__(self, load_pattern, conserve_memory=True):
-        super(ImageCollection, self).__init__(load_pattern, conserve_memory, ImageCollection.load_func)
+    def __init__(self, load_pattern, conserve_memory=True, **load_func_kwargs):
+        super(ImageCollection, self).__init__(load_pattern, conserve_memory, ImageCollection.load_func,
+                                              **load_func_kwargs)
         self._files = shuffle(self._files, random_state=17)
 
     def concatenate(self):
@@ -20,8 +20,8 @@ class ImageCollection(io.ImageCollection):
         return x, np_utils.to_categorical(y)
 
     @staticmethod
-    def load_func(f, **kwargs):
-        img = io.imread(f, as_grey=True)
+    def load_func(f, as_grey=False, **kwargs):
+        img = io.imread(f, as_grey=as_grey)
         img = img_as_float(img).astype(np.float32)
 
         # edges = canny(img, sigma=0.80, low_threshold=0.3, high_threshold=0.2)

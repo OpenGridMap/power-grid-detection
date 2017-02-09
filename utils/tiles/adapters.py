@@ -42,6 +42,10 @@ class MercatorTilesAdapter(object):
     def get_url(self):
         raise NotImplementedError
 
+    @staticmethod
+    def get_res():
+        return MercatorTilesAdapter.TILE_RESOLUTION
+
 
 class ArcgisOnlineAdapter(MercatorTilesAdapter):
     NAME = 'arcgis-online'

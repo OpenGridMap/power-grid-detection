@@ -1,6 +1,11 @@
+import os
 import json
 
 import config
+
+from utils.geo.coordinate import Coordinate
+from utils.dataset.nodes import get_nodes_df
+from utils.tiles.adapters import get_adapter_class
 
 
 def load_annotations_nodes(annotations_file=None):
@@ -56,6 +61,81 @@ def get_rect_from_annotation(annotation):
     return x, y, width, height
 
 
+def get_osm_id_from_annotation(annotation):
+    return int(annotation['osm_id'])
+
+
+def initialize_sloth_annotations(zoom=18, annotations_file=None, crop_res=(140., 140.), crop_x_offset=0,
+                                 crop_y_offset=0):
+    if annotations_file is None:
+        annotations_file = config.annotations_file
+
+    if os.path.exists(annotations_file):
+        print('File already exists :  %s' % annotations_file)
+        return
+
+    image_annotations = {}
+    nodes, n = get_nodes_df()
+    tiles_dir = config.affixed_tiles_dir
+
+    for node in nodes.iterrows():
+        # coord = Coordinate(lat=node[1]['lat'], lon=node[1]['lon'])
+        # filepath = os.path.abspath(os.path.join(tiles_dir, str(int(node[1]['osm_id'])) + '.jpg'))
+
+        coord = Coordinate.from_transnet_node(node)
+        filepath = os.path.join(tiles_dir, get_adapter_class().get_filename(coord.get_tile(zoom)))
+
+        if os.path.exists(filepath):
+            crop_box = coord.get_crop_box(zoom=zoom, crop_size=crop_res, crop_x_offset=crop_x_offset,
+                                          crop_y_offset=crop_y_offset)
+
+            image_annotation = {
+                "class": "tower",
+                "type": "rect",
+                "height": crop_res[0],
+                "width": crop_res[1],
+                "x": crop_box[0],
+                "y": crop_box[1],
+                "osm_id": int(node[1]['osm_id'])
+            }
+
+            if filepath in image_annotations:
+                image_annotations[filepath].append(image_annotation)
+            else:
+                image_annotations[filepath] = [image_annotation]
+
+                # properties = {
+                #     'annotations': [
+                #         {
+                #             "class": "tower",
+                #             "type": "rect",
+                #             "height": crop_res,
+                #             "width": crop_res,
+                #             "x": crop_box[0],
+                #             "y": crop_box[1]
+                #         }
+                #     ],
+                #     'class': 'image',
+                #     'filename': filepath
+                # }
+
+                # image_annotations.append(properties)
+
+    # print(image_annotations)
+    annotations = []
+
+    for k in image_annotations:
+        properties = {
+            'annotations': image_annotations[k],
+            'class': 'image',
+            'filename': k
+        }
+        annotations.append(properties)
+
+    with open(annotations_file, 'wb') as f:
+        json.dump(annotations, f, sort_keys=True, indent=4)
+        f.flush()
+
 # if __name__ == '__main__':
-    # print(count_annotations())
-    # print(count_annotated_images(config.current_annotations_file))
+#     print(count_annotations())
+#     print(count_annotated_images(config.current_annotations_file))
