@@ -10,15 +10,21 @@ from utils.dataset.annotations import annotations_iter, get_rect_from_annotation
 
 
 def crop_rect(im_src, x, y, width, height, dest_path=None):
-    box = get_coord_from_rect_box(x, y, width, height)
-    im = Image.new(im_src.mode, (width, height))
-    cropped_region = im_src.crop(box)
-    im.paste(cropped_region, (0, 0))
+    try:
+        box = get_coord_from_rect_box(x, y, width, height)
+        im = Image.new(im_src.mode, (width, height))
+        cropped_region = im_src.crop(box)
+        im.paste(cropped_region, (0, 0))
 
-    if dest_path is not None:
-        im.save(dest_path, 'JPEG')
-
-    return im
+        if dest_path is not None:
+            if not os.path.exists(dest_path):
+                im.save(dest_path, 'JPEG')
+            else:
+                print('%s already exists' % dest_path)
+        return im
+    except Exception as e:
+        print(e)
+        raise e
 
 
 def get_coord_from_rect_box(x, y, width, height):
@@ -32,6 +38,31 @@ def get_polygon_from_rect_box(x, y, height, width):
         (x + width, y + height),
         (x, y + height)
     ])
+
+
+def crop_annotated_region(im_src, annotation, path):
+    x, y, width, height = get_rect_from_annotation(annotation)
+    crop_rect(im_src, x, y, width, height, path)
+
+
+def crop_negative_samples(im_src, annotations, samples_per_image, basename, samples_dir):
+    boxes = [get_rect_from_annotation(annotation) for annotation in annotations_iter(annotations)]
+    annotated_regions = MultiPolygon([get_polygon_from_rect_box(*box) for box in boxes])
+    n_samples = 0
+
+    width, height = boxes[0][-2:]
+
+    while True:
+        x, y = np.random.randint(0, im_src.size[0], (2,))
+        rect = get_polygon_from_rect_box(x, y, width, height)
+
+        if not rect.intersects(annotated_regions) and 0 <= x <= 768 - width and 0 <= y <= 768 - height:
+            path = os.path.join(samples_dir, '%s_%d.jpg' % (basename, n_samples))
+            crop_rect(im_src, x, y, width, height, path)
+            n_samples += 1
+
+        if n_samples >= samples_per_image:
+            break
 
 
 def crop_positive_sample_windows(im_src, annotation, basename, window_res=(48, 48), step_size=12):
@@ -87,29 +118,6 @@ def crop_positive_sample_windows(im_src, annotation, basename, window_res=(48, 4
             im_window.save(path, 'JPEG')
 
 
-def crop_negative_samples(im_src, annotations, samples_per_image, basename, samples_dir=None):
-    if samples_dir is None:
-        samples_dir = os.path.join(config.negative_samples_dir)
-
-    boxes = [get_rect_from_annotation(annotation) for annotation in annotations_iter(annotations)]
-    annotated_regions = MultiPolygon([get_polygon_from_rect_box(*box) for box in boxes])
-    n_samples = 0
-
-    width, height = boxes[0][-2:]
-
-    while True:
-        x, y = np.random.randint(0, im_src.size[0], (2,))
-        rect = get_polygon_from_rect_box(x, y, width, height)
-
-        if not rect.intersects(annotated_regions) and 0 <= x <= 768 - width and 0 <= y <= 768 - height:
-            path = os.path.join(samples_dir, '%s_%d.jpg' % (basename, n_samples))
-            crop_rect(im_src, x, y, width, height, path)
-            n_samples += 1
-
-        if n_samples >= samples_per_image:
-            break
-
-
 def crop_negative_sample_windows(im_src, annotations, basename, samples_per_image, window_res=(48, 48)):
     negative_samples_dir = os.path.join(config.negative_samples_dir)
     # negative_samples_dir = os.path.join(config.negative_samples_dir, str(window_res[0]))
@@ -131,16 +139,6 @@ def crop_negative_sample_windows(im_src, annotations, basename, samples_per_imag
 
         if n_samples >= samples_per_image:
             break
-
-
-def crop_annotated_region(im_src, annotation, path):
-    try:
-        x, y, width, height = get_rect_from_annotation(annotation)
-
-        crop_rect(im_src, x, y, width, height, path)
-    except Exception as e:
-        print(e)
-        raise e
 
 
 def sliding_window(image, window_res, step_size):

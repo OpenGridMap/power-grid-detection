@@ -11,7 +11,7 @@ def get_path(f):
 
 
 class DataGenerator:
-    def __init__(self, dataset_file=None, batch_size=32, as_grey=False):
+    def __init__(self, dataset_file=None, batch_size=32, as_grey=False, preprocessing=False):
         if dataset_file is None:
             dataset_file = config.data_file
 
@@ -21,7 +21,7 @@ class DataGenerator:
         files = self.dataset['filepath'].values.tolist()
         # files = map(get_path, files)
 
-        self.ic = ImageCollection(files, as_grey=as_grey)
+        self.ic = ImageCollection(files, as_grey=as_grey, preprocessing=preprocessing)
         self.n_samples = len(self.ic)
         # self.n_batches = 1. * self.n_samples / batch_size
         self.n_batches = int(self.n_samples / batch_size)

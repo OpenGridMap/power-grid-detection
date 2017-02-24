@@ -62,10 +62,21 @@ def create_dataset(dataset_dir=None, n_positive_images=None, n_negative_images=N
                                                       test_size=test_ratio / (test_ratio + validation_ratio),
                                                       random_state=531)
 
-    images.to_csv(config.data_file)
-    train_images.to_csv(config.train_data_file)
-    validation_images.to_csv(config.validation_data_file)
-    test_images.to_csv(config.test_data_file)
+    if dataset_dir is None:
+        dataset = config.data_file
+        train_set = config.train_data_file
+        validation_set = config.validation_data_file
+        test_set = config.test_data_file
+    else:
+        dataset = os.path.join(dataset_dir, 'data.csv')
+        train_set = os.path.join(dataset_dir, 'train_data.csv')
+        validation_set = os.path.join(dataset_dir, 'validation_data.csv')
+        test_set = os.path.join(dataset_dir, 'test_data.csv')
+
+    images.to_csv(dataset)
+    train_images.to_csv(train_set)
+    validation_images.to_csv(validation_set)
+    test_images.to_csv(test_set)
 
     print('Training samples : %d ' % train_images.shape[0])
     print('Validation samples : %d' % validation_images.shape[0])

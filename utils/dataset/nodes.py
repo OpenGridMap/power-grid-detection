@@ -8,7 +8,7 @@ def to_csv(nodes, filepath=None):
         filepath = config.nodes
 
     df = pd.DataFrame(nodes)
-    print(df.head())
+    # print(df.head())
     df.to_csv(filepath, sep=',')
 
     return df.shape[0]
@@ -19,3 +19,4 @@ def get_nodes_df(filename=None, n=None):
         filename = config.nodes
     nodes = pd.read_csv(filename, index_col=0, nrows=n)
     return nodes, nodes.shape[0]
+

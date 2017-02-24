@@ -4,21 +4,37 @@ import json
 import config
 
 from utils.geo.coordinate import Coordinate
-from utils.dataset.nodes import get_nodes_df
+from utils.dataset.nodes import get_nodes_df, to_csv
 from utils.tiles.adapters import get_adapter_class
 
 
-def load_annotations_nodes(annotations_file=None):
-    if annotations_file is None:
-        annotations_file = config.current_annotations_file
-
+def load_annotations(annotations_file):
+    # if annotations_file is None:
+    #     annotations_file = config.current_annotations_file
     with open(annotations_file, 'rb') as f:
-        nodes = json.load(f)
-    return nodes
+        annotations = json.load(f)
+
+    return annotations
+
+
+def save_annotations(annotations, annotations_file, append=False, overwrite=False):
+    if os.path.exists(annotations_file) and append:
+        annotations = load_annotations(annotations_file) + annotations
+
+    if not os.path.exists(annotations_file) or overwrite:
+        with open(annotations_file, 'wb') as f:
+            json.dump(annotations, f, sort_keys=True, indent=4)
+            f.flush()
+
+        return True
+    else:
+        print('Annotation file %s already exists.' % annotations_file)
+
+        return False
 
 
 def count_annotated_images(annotations_file=None):
-    nodes = load_annotations_nodes(annotations_file)
+    nodes = load_annotations(annotations_file)
 
     count = 0
 
@@ -39,7 +55,7 @@ def annotations_iter(annotations):
 
 
 def count_annotations(annotations_file=None):
-    nodes = load_annotations_nodes(annotations_file)
+    nodes = load_annotations(annotations_file)
 
     count = 0
 
@@ -61,8 +77,16 @@ def get_rect_from_annotation(annotation):
     return x, y, width, height
 
 
+def get_coord_from_annotation(annotation, tile):
+    rect = get_rect_from_annotation(annotation)
+    return Coordinate.from_rect(rect, tile)
+
+
 def get_osm_id_from_annotation(annotation):
-    return int(annotation['osm_id'])
+    if 'osm_id' in annotation:
+        return str(int(annotation['osm_id']))
+
+    return None
 
 
 def initialize_sloth_annotations(zoom=18, annotations_file=None, crop_res=(140., 140.), crop_x_offset=0,
@@ -132,10 +156,94 @@ def initialize_sloth_annotations(zoom=18, annotations_file=None, crop_res=(140.,
         }
         annotations.append(properties)
 
-    with open(annotations_file, 'wb') as f:
-        json.dump(annotations, f, sort_keys=True, indent=4)
-        f.flush()
+    save_annotations(annotations, annotations_file)
 
-# if __name__ == '__main__':
-#     print(count_annotations())
-#     print(count_annotated_images(config.current_annotations_file))
+    # with open(annotations_file, 'wb') as f:
+    #     json.dump(annotations, f, sort_keys=True, indent=4)
+    #     f.flush()
+
+
+def update_corrected_annotations(annotation_file, x=281279, y=171693, zoom=19, final_annotations_file=None,
+                                 pending_annotations_file=None, final_transnet_nodes_file=None):
+    """
+    :param annotation_file: annotation file with the corrected annotations
+    :param x: last annotated tile's x coordinate, for e.g. 123 in 123_456_18.jpg
+    :param y: last annotated tile's y coordinate, for e.g. 456 in 123_456_18.jpg
+    :param zoom: zoom level of the image, for e.g. 18 in 123_456_18.jpg
+    :param final_annotations_file: file to save the corrected annotations in.
+    :param pending_annotations_file: file to save the pending annotations
+    :param final_transnet_nodes_file: file to save corrected transnet nodes
+    :return: filtered list of corrected annotations
+    """
+    file_format = '{}_{}_{}.jpg'
+    n_files = 0
+    n_samples = 0
+    n_pending = 0
+    corrected_annotations = []
+    pending_annotations = []
+    corrected_nodes = []
+    pending = False
+
+    filename = file_format.format(x, y, zoom)
+    nodes = load_annotations(annotation_file)
+
+    if final_annotations_file is None:
+        final_annotations_file = config.final_annotations_file
+
+    if pending_annotations_file is None:
+        pending_annotations_file = config.pending_annotations_file
+
+    if final_transnet_nodes_file is None:
+        final_transnet_nodes_file = config.nodes_corrected
+
+    for i, node in enumerate(nodes):
+        if 'filename' in node and 'annotations' in node:
+            node_filename = os.path.basename(node['filename'])
+
+            if not pending:
+                for annotation in node['annotations']:
+                    osm_id = None
+                    tile = tuple(map(int, node_filename.split('.')[0].split('_')))
+
+                    if 'osm_id' in annotation:
+                        osm_id = annotation['osm_id']
+
+                    coord = get_coord_from_annotation(annotation, tile)
+                    transnet_node = coord.get_transnet_node(osm_id)
+                    corrected_nodes.append(transnet_node)
+
+                n_samples += len(node['annotations'])
+                corrected_annotations.append(node)
+            else:
+                pending_annotations.append(node)
+                n_pending += 1
+
+            if filename == node_filename:
+                print('Current annotation : %d' % (i + 1))
+                n_files = i + 1
+                pending = True
+                # break
+
+    if n_files == 0:
+        print('Last annotated file %s not found.' % filename)
+        return []
+    else:
+        print('%d annotations in %d images' % (n_samples, n_files))
+        print('%d images pending to be annotated' % n_pending)
+
+        last_annotation_meta = dict(x=tile[0], y=tile[1], z=tile[2])
+        save_annotations(last_annotation_meta, os.path.join(config.dataset_dir, 'annotations-final.meta'),
+                         overwrite=True)
+
+        save_annotations(corrected_annotations, final_annotations_file, False, True)
+        save_annotations(pending_annotations, pending_annotations_file, False, True)
+        to_csv(corrected_nodes, final_transnet_nodes_file)
+
+    return corrected_annotations
+
+
+if __name__ == '__main__':
+    update_corrected_annotations(config.corrected_annotations_file, 281279, 171693, 19)
+
+    # print(count_annotations())
+    # print(count_annotated_images(config.current_annotations_file))

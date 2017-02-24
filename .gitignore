@@ -11,5 +11,6 @@ data/osm/raw-data
 *.png
 *.db
 *.hdf5
+*.zip
 
 config.yaml

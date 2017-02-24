@@ -7,6 +7,8 @@ from skimage.feature import canny, hog
 from sklearn.utils import shuffle
 from keras.utils import np_utils
 
+from utils.img.preprocessing import edges_hog_gray, edges_dil_ero
+
 
 class ImageCollection(io.ImageCollection):
     def __init__(self, load_pattern, conserve_memory=True, **load_func_kwargs):
@@ -20,18 +22,15 @@ class ImageCollection(io.ImageCollection):
         return x, np_utils.to_categorical(y)
 
     @staticmethod
-    def load_func(f, as_grey=False, **kwargs):
+    def load_func(f, as_grey=False, preprocessing=False, **kwargs):
         img = io.imread(f, as_grey=as_grey)
+
+        if preprocessing == 'edges_hog_gray':
+            img = edges_hog_gray(img)
+        elif preprocessing == 'edges_dil_ero':
+            img = edges_dil_ero(img)
+
         img = img_as_float(img).astype(np.float32)
-
-        # edges = canny(img, sigma=0.80, low_threshold=0.3, high_threshold=0.2)
-
-        # fd = hog(img, orientations=9, pixels_per_cell=(12, 12), cells_per_block=(4, 4))
-        # hog_shape = np.sqrt(fd.shape[0]).astype(int)
-        # fd = resize(fd.reshape(hog_shape, hog_shape), (img.shape[0], img.shape[1]))
-
-        # img = np.dstack((img, edges, fd))
-        # img = edges.reshape((edges.shape[0], edges.shape[1], 1))
 
         if len(img.shape) == 2:
             img = img.reshape((img.shape[0], img.shape[1], 1))

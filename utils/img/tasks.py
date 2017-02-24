@@ -39,31 +39,30 @@ class CropTask(object):
 
     def crop_positive_sample(self, im_src, basename):
         for i, annotation in enumerate(annotations_iter(self.annotations)):
-            path = os.path.join(self.dest_dir, 'positive', '%d.jpg' % get_osm_id_from_annotation(annotation))
+            filename = get_osm_id_from_annotation(annotation)
+
+            if filename is None:
+                filename = '%s_%d.jpg' % (basename, i)
+
+            path = os.path.join(self.dest_dir, 'positive', '%s.jpg' % filename)
             crop_annotated_region(im_src, annotation, path)
 
     def crop_negative_samples(self, im_src, basename):
         path = os.path.join(self.dest_dir, 'negative')
         crop_negative_samples(im_src, self.annotations, self.negative_samples_per_annotation, basename, path)
 
-    def crop_positive_sample_windows(self, im_src, basename):
-        for annotation in annotations_iter(self.annotations):
-            crop_positive_sample_windows(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(140, 140))
-            # crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no))
-            # crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(128, 128))
-            # crop_positive_samples(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(256, 256))
-
-    def crop_negative_sample_windows(self, im_src, basename):
-        basename = '%s_%d' % (basename, self.task_no)
-        crop_negative_sample_windows(im_src, self.annotations, basename, 3, window_res=(140, 140))
-        # crop_negative_samples(im_src, self.annotations, basename, 30)
-        # crop_negative_samples(im_src, self.annotations, basename, 30, window_res=(128, 128))
-        # crop_negative_samples(im_src, self.annotations, basename, 30, window_res=(256, 256))
-
-    def get_negative_sample_windows_path(self, basename, i):
-        filename = '%s_%d_%d.jpg' % (basename, i, self.task_no)
-        path = os.path.join(self.dest_dir, filename)
-        return path
+    # def crop_positive_sample_windows(self, im_src, basename):
+    #     for annotation in annotations_iter(self.annotations):
+    #         crop_positive_sample_windows(im_src, annotation, '%s_%d' % (basename, self.task_no), window_res=(140, 140))
+    #
+    # def crop_negative_sample_windows(self, im_src, basename):
+    #     basename = '%s_%d' % (basename, self.task_no)
+    #     crop_negative_sample_windows(im_src, self.annotations, basename, 3, window_res=(140, 140))
+    #
+    # def get_negative_sample_windows_path(self, basename, i):
+    #     filename = '%s_%d_%d.jpg' % (basename, i, self.task_no)
+    #     path = os.path.join(self.dest_dir, filename)
+    #     return path
 
 
 class ResizeTask(object):

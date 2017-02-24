@@ -7,11 +7,11 @@ import config
 
 from utils.tasks.handler import TasksHandler
 from utils.img.tasks import CropTask
-from utils.dataset.annotations import count_annotated_images, load_annotations_nodes
+from utils.dataset.annotations import count_annotated_images, load_annotations
 
 
 def get_crop_tasks(annotations_file, dest_dir):
-    nodes = load_annotations_nodes(annotations_file)
+    nodes = load_annotations(annotations_file)
     i = 0
 
     for node in nodes:

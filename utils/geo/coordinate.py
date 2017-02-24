@@ -35,6 +35,18 @@ class Coordinate(object):
 
         return xtile, ytile, xpixel, ypixel
 
+    @staticmethod
+    def get_coordinates_from_tile_coordinates(xtile, ytile, xpixel, ypixel, zoom):
+        xtile += xpixel / 256.
+        ytile += ypixel / 256.
+
+        n = 2.0 ** zoom
+        lng = xtile / n * 360.0 - 180.0
+        lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
+        lat = math.degrees(lat_rad)
+
+        return lat, lng
+
     def get_tile(self, zoom=18):
         return mercantile.tile(lat=self.lat, lng=self.lng, zoom=zoom)
 
@@ -120,10 +132,37 @@ class Coordinate(object):
             tile_y_offset * tile_res + ypix + crop_size[1] / 2. - crop_y_offset
         )
 
+    def get_transnet_node(self, osm_id=None):
+        if osm_id is not None:
+            osm_id = str(int(osm_id))
+
+        return dict(lat=self.lat, lon=self.lng, node=osm_id)
+
     @classmethod
     def from_transnet_node(cls, node):
         return cls(lat=node[1]['lat'], lon=node[1]['lon'])
-    
+
+    @classmethod
+    def from_rect(cls, rect, tile):
+        xtile, ytile, zoom = tile
+        xpixel, ypixel, width, height = rect
+
+        x_offset, y_offset = Coordinate.get_tiles_count(zoom)
+        x_offset = int(x_offset / 2)
+        y_offset = int(y_offset / 2)
+
+        xpixel += width / 2
+        ypixel += height / 2
+        xtile += (xpixel / 256) - x_offset
+        ytile += (ypixel / 256) - y_offset
+
+        xpixel %= 256
+        ypixel %= 256
+
+        latlng = Coordinate.get_coordinates_from_tile_coordinates(xtile, ytile, xpixel, ypixel, zoom)
+
+        return cls(*latlng)
+
 
 class AreaCoordinates(object):
     def __init__(self, top_left_coord, bottom_right_coord):

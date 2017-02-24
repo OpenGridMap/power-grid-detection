@@ -22,6 +22,7 @@ transnet_powerlines_filtered_file = os.path.join(data_src_dir, 'transnet',
                                                  'transnet_powerlines_' + config_params['loc'] + '.csv')
 transnet_nodes_file = os.path.join(data_src_dir, 'transnet', 'transnet_nodes.pkl')
 nodes = os.path.join(dataset_dir, 'transnet_nodes_' + config_params['loc'] + '.csv')
+nodes_corrected = os.path.join(dataset_dir, 'transnet_nodes_corrected_' + config_params['loc'] + '.csv')
 
 cache_dir = os.path.join(os.path.dirname(__file__), 'data', 'cache')
 # tiles_cache_dir = os.path.join(cache_dir, 'arcgis-online', 'tiles')
@@ -40,6 +41,9 @@ processed_negative_samples_dir = os.path.join(final_dataset_dir, 'negative')
 
 annotations_file = os.path.join(dataset_dir, 'annotations.json')
 current_annotations_file = os.path.join(dataset_dir, 'annotations-v5.json')
+corrected_annotations_file = os.path.join(dataset_dir, 'annotations-corrected.json')
+final_annotations_file = os.path.join(dataset_dir, 'annotations-final.json')
+pending_annotations_file = os.path.join(dataset_dir, 'annotations-pending.json')
 
 data_file = os.path.join(dataset_dir, 'data.csv')
 train_data_file = os.path.join(dataset_dir, 'train_data.csv')
