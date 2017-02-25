@@ -93,5 +93,4 @@ def create_dataset(dataset_dir=None, n_positive_images=None, n_negative_images=N
 
 if __name__ == '__main__':
     create_dataset(os.path.join(config.dataset_dir, 'raw', '19'), n_positive_images=5000, n_negative_images=10000)
-    # dataset_path = os.path.join(config.dataset_dir, 'corrected', '19')
-    # create_dataset(dataset_dir=dataset_path, n_positive_images=5000, n_negative_images=10000)
+    create_dataset(os.path.join(config.dataset_dir, 'corrected', '19'), n_positive_images=5000, n_negative_images=10000)

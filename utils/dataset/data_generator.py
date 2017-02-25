@@ -1,4 +1,5 @@
 import os
+import threading
 import pandas as pd
 
 import config
@@ -31,6 +32,8 @@ class DataGenerator:
 
         self.batch_no = 0
 
+        self.lock = threading.Lock()
+
     def __iter__(self):
         for batch_no in range(self.n_batches):
             x, y = self.ic[batch_no * self.batch_size: (batch_no + 1) * self.batch_size].concatenate()
@@ -39,19 +42,15 @@ class DataGenerator:
             yield x, y
 
     def next(self):
-        if self.batch_no == self.n_batches:
-            self.reset()
+        with self.lock:
+            if self.batch_no == self.n_batches:
+                self.reset()
 
-        x, y = self.ic[self.batch_no * self.batch_size: (self.batch_no + 1) * self.batch_size].concatenate()
+            x, y = self.ic[self.batch_no * self.batch_size: (self.batch_no + 1) * self.batch_size].concatenate()
 
-        self.batch_no += 1
+            self.batch_no += 1
 
-        # print(x.shape)
-        # print(y.shape)
-
-        # print('Batch %d/%d' % (self.batch_no, self.n_batches))
-
-        return x, y
+            return x, y
 
     def __len__(self):
         return self.n_batches
