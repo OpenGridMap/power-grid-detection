@@ -12,5 +12,6 @@ data/osm/raw-data
 *.db
 *.hdf5
 *.zip
+*.tar.gz
 
 config.yaml
