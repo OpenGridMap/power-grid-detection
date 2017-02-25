@@ -7,7 +7,7 @@ from utils.img.collection import ImageCollection
 
 
 def get_path(f):
-    return os.path.join(config.project_dir, f)
+    return os.path.join(config.dataset_dir, f)
 
 
 class DataGenerator:
@@ -19,7 +19,7 @@ class DataGenerator:
         self.batch_size = batch_size
 
         files = self.dataset['filepath'].values.tolist()
-        # files = map(get_path, files)
+        files = map(get_path, files)
 
         self.ic = ImageCollection(files, as_grey=as_grey, preprocessing=preprocessing)
         self.n_samples = len(self.ic)
@@ -83,3 +83,8 @@ class DataGenerator:
 #         i += 1
 #         if i > 2:
 #             break
+
+if __name__ == '__main__':
+    d = DataGenerator('/home/tanuj/Workspace/power-grid-detection/dataset/corrected/19/train_data.csv')
+
+    print(next(d))

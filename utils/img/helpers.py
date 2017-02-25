@@ -1,12 +1,12 @@
 import os
-import numpy as np
 
+import numpy as np
 from PIL import Image
 from shapely.geometry import Polygon, MultiPolygon
 
 import config
-
 from utils.dataset.annotations import annotations_iter, get_rect_from_annotation
+from utils.geo.coordinate import Coordinate
 
 
 def crop_rect(im_src, x, y, width, height, dest_path=None):
@@ -28,7 +28,7 @@ def crop_rect(im_src, x, y, width, height, dest_path=None):
 
 
 def get_coord_from_rect_box(x, y, width, height):
-    return x, y, x + width, y + height
+    return map(int, [x, y, x + width, y + height])
 
 
 def get_polygon_from_rect_box(x, y, height, width):
@@ -47,22 +47,34 @@ def crop_annotated_region(im_src, annotation, path):
 
 def crop_negative_samples(im_src, annotations, samples_per_image, basename, samples_dir):
     boxes = [get_rect_from_annotation(annotation) for annotation in annotations_iter(annotations)]
-    annotated_regions = MultiPolygon([get_polygon_from_rect_box(*box) for box in boxes])
+    annotated_regions = get_multipolygon_from_boxes(boxes)
+
+    z = int(basename.split('_')[-1])
+    tiles_count = Coordinate.get_tiles_count(z)
     n_samples = 0
 
-    width, height = boxes[0][-2:]
+    # width, height = boxes[0][-2:]
+    width, height = 140, 140
 
     while True:
         x, y = np.random.randint(0, im_src.size[0], (2,))
         rect = get_polygon_from_rect_box(x, y, width, height)
 
-        if not rect.intersects(annotated_regions) and 0 <= x <= 768 - width and 0 <= y <= 768 - height:
-            path = os.path.join(samples_dir, '%s_%d.jpg' % (basename, n_samples))
-            crop_rect(im_src, x, y, width, height, path)
-            n_samples += 1
+        if not rect.intersects(annotated_regions):
+            if 0 <= x <= tiles_count[0] * 256 - width and 0 <= y <= tiles_count[1] * 256 - height:
+                path = os.path.join(samples_dir, '%s_%d.jpg' % (basename, n_samples))
+                crop_rect(im_src, x, y, width, height, path)
+                n_samples += 1
 
-        if n_samples >= samples_per_image:
-            break
+                boxes.append([x, y, width, height])
+                annotated_regions = get_multipolygon_from_boxes(boxes)
+
+                if n_samples >= samples_per_image:
+                    break
+
+
+def get_multipolygon_from_boxes(boxes):
+    return MultiPolygon([get_polygon_from_rect_box(*box) for box in boxes])
 
 
 def crop_positive_sample_windows(im_src, annotation, basename, window_res=(48, 48), step_size=12):
@@ -147,3 +159,5 @@ def sliding_window(image, window_res, step_size):
         for x in range(0, image.shape[1], step_size):
             # yield the current window
             yield (x, y, image[y:y + window_res[1], x:x + window_res[0]])
+
+

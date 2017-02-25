@@ -74,7 +74,7 @@ def get_rect_from_annotation(annotation):
     x = int(annotation['x'])
     y = int(annotation['y'])
 
-    return x, y, width, height
+    return map(int, [x, y, width, height])
 
 
 def get_coord_from_annotation(annotation, tile):

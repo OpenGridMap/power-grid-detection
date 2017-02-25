@@ -18,8 +18,14 @@ def images_in_dir(path):
     return glob1(path, '*.jpg')
 
 
+def get_image_path(image_dir, filename):
+    dataset = os.path.join(image_dir, filename)
+    return os.path.relpath(os.path.abspath(dataset), config.dataset_dir)
+
+
 def get_sample_from_image(image, image_dir, is_tower):
-    return dict(filepath=os.path.join(image_dir, image), tower=is_tower)
+    # return dict(filepath=os.path.join(image_dir, image), tower=is_tower)
+    return dict(filepath=get_image_path(image_dir, image), tower=is_tower)
 
 
 def get_samples_from_dir(image_dir, is_tower, n_samples):
@@ -73,6 +79,8 @@ def create_dataset(dataset_dir=None, n_positive_images=None, n_negative_images=N
         validation_set = os.path.join(dataset_dir, 'validation_data.csv')
         test_set = os.path.join(dataset_dir, 'test_data.csv')
 
+        # print(os.path.relpath(os.path.abspath(dataset), config.dataset_dir))
+
     images.to_csv(dataset)
     train_images.to_csv(train_set)
     validation_images.to_csv(validation_set)
@@ -84,4 +92,6 @@ def create_dataset(dataset_dir=None, n_positive_images=None, n_negative_images=N
 
 
 if __name__ == '__main__':
-    create_dataset(n_positive_images=5000, n_negative_images=10000)
+    create_dataset(os.path.join(config.dataset_dir, 'raw', '19'), n_positive_images=5000, n_negative_images=10000)
+    # dataset_path = os.path.join(config.dataset_dir, 'corrected', '19')
+    # create_dataset(dataset_dir=dataset_path, n_positive_images=5000, n_negative_images=10000)

@@ -12,15 +12,17 @@ from utils.img.helpers import crop_annotated_region, crop_negative_samples, crop
 
 
 class CropTask(object):
-    def __init__(self, src_file, annotations, dest_dir, negative_samples_per_image, task_no=None, **kwargs):
+    def __init__(self, src_file, annotations, dest_dir, negative_samples_per_image, **kwargs):
         self.src_file = src_file
         self.annotations = annotations
         self.dest_dir = dest_dir
-        self.task_no = task_no
-        self.negative_samples_per_annotation = negative_samples_per_image
+        # self.task_no = task_no
+        self.negative_samples_per_image = negative_samples_per_image
 
         if not os.path.exists(self.dest_dir):
             os.makedirs(self.dest_dir)
+            os.makedirs(os.path.join(self.dest_dir, 'positive'))
+            os.makedirs(os.path.join(self.dest_dir, 'negative'))
 
     def __call__(self, **kwargs):
         basename = os.path.splitext(os.path.basename(self.src_file))[0]
@@ -39,17 +41,19 @@ class CropTask(object):
 
     def crop_positive_sample(self, im_src, basename):
         for i, annotation in enumerate(annotations_iter(self.annotations)):
-            filename = get_osm_id_from_annotation(annotation)
+            # filename = get_osm_id_from_annotation(annotation)
+            #
+            # if filename is None:
+            #     filename = '%s_%d.jpg' % (basename, i)
 
-            if filename is None:
-                filename = '%s_%d.jpg' % (basename, i)
+            filename = '%s_%d.jpg' % (basename, i)
 
-            path = os.path.join(self.dest_dir, 'positive', '%s.jpg' % filename)
+            path = os.path.join(self.dest_dir, 'positive', filename)
             crop_annotated_region(im_src, annotation, path)
 
     def crop_negative_samples(self, im_src, basename):
         path = os.path.join(self.dest_dir, 'negative')
-        crop_negative_samples(im_src, self.annotations, self.negative_samples_per_annotation, basename, path)
+        crop_negative_samples(im_src, self.annotations, self.negative_samples_per_image, basename, path)
 
     # def crop_positive_sample_windows(self, im_src, basename):
     #     for annotation in annotations_iter(self.annotations):

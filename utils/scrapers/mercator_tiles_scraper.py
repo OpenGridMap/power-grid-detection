@@ -20,7 +20,7 @@ class MercatorTilesScraper(object):
     def __init__(self, files_dir=None):
         self.adapter = get_adapter(files_dir=files_dir)
 
-    def scrape(self, n=None, filename=None, zoom=18, ipython_notebook=False):
+    def scrape(self, filename=None, n=None, zoom=18, ipython_notebook=False):
         nodes, n = get_nodes_df(filename, n)
 
         tiles_scrape_tasks = self.get_tiles_scrape_tasks(nodes, zoom, self.adapter)
