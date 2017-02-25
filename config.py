@@ -50,6 +50,11 @@ train_data_file = os.path.join(dataset_dir, 'train_data.csv')
 validation_data_file = os.path.join(dataset_dir, 'validation_data.csv')
 test_data_file = os.path.join(dataset_dir, 'test_data.csv')
 
+corrected_data_file = os.path.join(dataset_dir, 'corrected', '19', 'data.csv')
+corrected_train_data_file = os.path.join(dataset_dir, 'corrected', '19', 'train_data.csv')
+corrected_validation_data_file = os.path.join(dataset_dir, 'corrected', '19', 'validation_data.csv')
+corrected_test_data_file = os.path.join(dataset_dir, 'corrected', '19', 'test_data.csv')
+
 results_dir = os.path.join(project_dir, 'training', 'results')
 
 test_dir = os.path.join(dataset_dir, 'test')
