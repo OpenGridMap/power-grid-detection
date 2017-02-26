@@ -19,7 +19,7 @@ class ImageCollection(io.ImageCollection):
     def concatenate(self):
         x = super(ImageCollection, self).concatenate()
         y = map(ImageCollection.is_tower, self.files)
-        return x, np_utils.to_categorical(y)
+        return x, np_utils.to_categorical(y, nb_classes=2)
 
     @staticmethod
     def load_func(f, as_grey=False, preprocessing=False, **kwargs):
