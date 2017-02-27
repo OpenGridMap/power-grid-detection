@@ -1,11 +1,10 @@
 import numpy as np
-
 from skimage import io
 from skimage.util import img_as_float
-from skimage.transform import resize
-from skimage.feature import canny, hog
 from sklearn.utils import shuffle
 from keras.utils import np_utils
+from keras.preprocessing import image
+from keras.applications.imagenet_utils import preprocess_input
 
 from utils.img.preprocessing import edges_hog_gray, edges_dil_ero
 
@@ -16,13 +15,25 @@ class ImageCollection(io.ImageCollection):
                                               **load_func_kwargs)
         self._files = shuffle(self._files, random_state=17)
 
+        if 'vgg' in load_func_kwargs and load_func_kwargs['vgg']:
+            self.vgg = True
+
     def concatenate(self):
         x = super(ImageCollection, self).concatenate()
+
+        if hasattr(self, 'vgg') and self.vgg:
+            x = preprocess_input(x)
+
         y = map(ImageCollection.is_tower, self.files)
         return x, np_utils.to_categorical(y, nb_classes=2)
 
     @staticmethod
-    def load_func(f, as_grey=False, preprocessing=False, **kwargs):
+    def load_func(f, as_grey=False, preprocessing=False, vgg=False, **kwargs):
+        if vgg:
+            img = image.load_img(f, target_size=(224, 224))
+            img = image.img_to_array(img)
+            return img
+
         img = io.imread(f, as_grey=as_grey)
 
         if preprocessing == 'edges_hog_gray':
