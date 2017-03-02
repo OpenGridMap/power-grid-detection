@@ -8,7 +8,7 @@ from keras.regularizers import l1l2
 import config
 
 
-def cnn_regularized(input_shape=(48, 48, 3), activation_fn='relu', init='glorot_uniform', l1=0.01, l2=0.01, dropout=0.5,
+def cnn_regularized(input_shape=(140, 140, 3), activation_fn='relu', init='glorot_uniform', l1=0.01, l2=0.01, dropout=0.5,
                     weights=None):
     # input_img = Input(input_shape, tensor=theano.shared(np.zeros(input_shape, dtype=np.float32), borrow=True))
     input_img = Input(input_shape)
@@ -60,7 +60,7 @@ def cnn_regularized(input_shape=(48, 48, 3), activation_fn='relu', init='glorot_
     return model
 
 
-def cnn(input_shape=(48, 48, 3), activation_fn='relu', init='glorot_uniform', weights=None):
+def cnn(input_shape=(140, 140, 3), activation_fn='relu', init='glorot_uniform', weights=None):
     # input_img = Input(input_shape, tensor=theano.shared(np.zeros(input_shape, dtype=np.float32), borrow=True))
     input_img = Input(input_shape)
 
@@ -107,3 +107,8 @@ def cnn(input_shape=(48, 48, 3), activation_fn='relu', init='glorot_uniform', we
         model.load_weights(weights)
 
     return model
+
+
+if __name__ == '__main__':
+    m = cnn_regularized()
+    m.summary()

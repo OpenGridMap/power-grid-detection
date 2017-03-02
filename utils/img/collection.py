@@ -11,7 +11,7 @@ from utils.img.preprocessing import edges_hog_gray, edges_dil_ero
 
 class ImageCollection(io.ImageCollection):
     def __init__(self, load_pattern, conserve_memory=True, **load_func_kwargs):
-        super(ImageCollection, self).__init__(load_pattern, conserve_memory, ImageCollection.load_func,
+        super(ImageCollection, self).__init__(load_pattern, conserve_memory, ImageCollection.load_image,
                                               **load_func_kwargs)
         self._files = shuffle(self._files, random_state=17)
 
@@ -28,20 +28,20 @@ class ImageCollection(io.ImageCollection):
         return x, np_utils.to_categorical(y, nb_classes=2)
 
     @staticmethod
-    def load_func(f, as_grey=False, preprocessing=False, vgg=False, **kwargs):
+    def load_image(f, as_grey=False, preprocessing=False, vgg=False, **kwargs):
         if vgg:
             img = image.load_img(f, target_size=(224, 224))
             img = image.img_to_array(img)
-            return img
+            # return img
+        else:
+            img = io.imread(f, as_grey=as_grey)
 
-        img = io.imread(f, as_grey=as_grey)
+            if preprocessing == 'edges_hog_gray':
+                img = edges_hog_gray(img)
+            elif preprocessing == 'edges_dil_ero':
+                img = edges_dil_ero(img)
 
-        if preprocessing == 'edges_hog_gray':
-            img = edges_hog_gray(img)
-        elif preprocessing == 'edges_dil_ero':
-            img = edges_dil_ero(img)
-
-        img = img_as_float(img).astype(np.float32)
+            img = img_as_float(img).astype(np.float32)
 
         if len(img.shape) == 2:
             img = img.reshape((img.shape[0], img.shape[1], 1))

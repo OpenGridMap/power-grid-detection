@@ -31,13 +31,17 @@ def get_coord_from_rect_box(x, y, width, height):
     return map(int, [x, y, x + width, y + height])
 
 
-def get_polygon_from_rect_box(x, y, height, width):
+def get_polygon_from_rect_box(x, y, width, height):
     return Polygon([
         (x, y),
         (x + width, y),
         (x + width, y + height),
         (x, y + height)
     ])
+
+
+def get_polygon_from_coord(x1, y1, x2, y2):
+    return get_polygon_from_rect_box(x1, y1, x2 - x1, y2 - y1)
 
 
 def crop_annotated_region(im_src, annotation, path):
@@ -159,5 +163,3 @@ def sliding_window(image, window_res, step_size):
         for x in range(0, image.shape[1], step_size):
             # yield the current window
             yield (x, y, image[y:y + window_res[1], x:x + window_res[0]])
-
-

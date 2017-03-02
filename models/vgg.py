@@ -10,7 +10,7 @@ def vgg16(input_shape=(224, 224, 3), weights=None, vgg_transfer=None, activation
     if vgg_transfer is not None:
         vgg_transfer = 'imagenet'
 
-    vgg = VGG16(input_tensor=input_tensor, include_top=False, weights=vgg_transfer, input_shape=input_shape)
+    vgg = VGG16(input_tensor=input_tensor, include_top=False, weights=vgg_transfer)
 
     x = Flatten(name='flatten')(vgg.output)
     x = Dense(4096, activation=activation_fn, name='fc1', W_regularizer=l1l2(l1, l2), b_regularizer=l1l2(l1, l2))(x)
